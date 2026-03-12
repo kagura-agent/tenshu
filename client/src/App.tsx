@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Sidebar } from "./components/Sidebar";
 import { Dashboard } from "./pages/Dashboard";
 import { Sessions } from "./pages/Sessions";
+import { Cron } from "./pages/Cron";
 
 const queryClient = new QueryClient();
 
@@ -17,7 +18,7 @@ function App() {
               <Route path="/" element={<Dashboard />} />
               <Route path="/office" element={<div>Office — coming soon</div>} />
               <Route path="/sessions" element={<Sessions />} />
-              <Route path="/cron" element={<div>Cron — coming soon</div>} />
+              <Route path="/cron" element={<Cron />} />
             </Routes>
           </main>
         </div>
