@@ -1,14 +1,72 @@
-# Tenshu
+# 天守 Tenshu
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+> **天守** (tenshu) — The main tower of a Japanese castle. The highest point from which the lord surveys and commands everything below. Literally "Protector of Heaven" (天 = heaven, 守 = protector/guardian).
 
-Real-time dashboard for OpenClaw AI agent teams.
+Real-time dashboard for [OpenClaw](https://github.com/openclaw) AI agent teams.
 
-The name comes from the Japanese word for the main tower of a castle. The kanji break down as: heaven/sky and protector/guardian -- the central keep that watches over everything below.
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-## Setup
+## Features
 
-_Coming soon._
+- **Agent Dashboard** — Live status, current tasks, model info for all agents. Real-time activity feed via WebSocket.
+- **3D Office** — Interactive voxel office with agent desks, status-colored monitors, and moving avatars. Click desks to view agent details.
+- **Session Viewer** — Active Claude Code sessions with token counts, model, duration, and cost tracking.
+- **Cron Manager** — View, toggle, and manually trigger scheduled tasks.
+
+## Prerequisites
+
+- Node.js 22+
+- [OpenClaw](https://github.com/openclaw) installed and configured (`~/.openclaw/openclaw.json`)
+
+## Quick Start
+
+```bash
+git clone https://github.com/JesseRWeigel/tenshu.git
+cd tenshu
+npm install
+npm run dev
+```
+
+This starts both the API server (port 3001) and the client dev server (port 5173). Open http://localhost:5173.
+
+## Configuration
+
+Create `tenshu.config.ts` in the project root to customize:
+
+```ts
+export default {
+  openclawDir: "~/.openclaw",  // Path to OpenClaw config
+  port: 3001,                   // API server port
+  clientPort: 5173,             // Client dev server port
+  theme: "dark",                // dark | light | system
+  accentColor: "#ff6b35",       // UI accent color
+};
+```
+
+Environment variables:
+- `OPENCLAW_DIR` — Override config directory (default: `~/.openclaw`)
+- `TENSHU_PORT` — Override server port (default: `3001`)
+
+## Architecture
+
+```
+tenshu/
+├── shared/     # TypeScript types and constants
+├── server/     # Hono API server + WebSocket + file watchers
+└── client/     # Vite + React SPA + Shadcn/ui + Three.js
+```
+
+**Data flow:** Server reads `openclaw.json` as single source of truth → polls gateway for live sessions → watches agent workspaces for file changes → broadcasts updates via WebSocket → client renders in real-time.
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Client | Vite, React, Tailwind CSS, Shadcn/ui |
+| 3D | React Three Fiber, drei |
+| Server | Hono, WebSocket, chokidar |
+| Real-time | WebSocket (bidirectional) |
+| Monorepo | npm workspaces |
 
 ## License
 
