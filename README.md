@@ -12,6 +12,8 @@ Real-time dashboard for [OpenClaw](https://github.com/openclaw) AI agent teams.
 - **3D Office** — Interactive voxel office with agent desks, status-colored monitors, and moving avatars. Click desks to view agent details.
 - **Session Viewer** — Active Claude Code sessions with token counts, model, duration, and cost tracking.
 - **Cron Manager** — View, toggle, and manually trigger scheduled tasks.
+- **Results Log** — Experiment results from orchestrator cycles with score trends, keep/discard status, and success rate stats. Reads from `results.tsv` (Karpathy autoresearch pattern).
+- **System Monitor** — Real-time GPU temperature, utilization, VRAM, CPU, RAM, disk usage, and loaded Ollama models. Know when your hardware is under stress.
 
 ## Prerequisites
 
@@ -46,6 +48,7 @@ export default {
 Environment variables:
 - `OPENCLAW_DIR` — Override config directory (default: `~/.openclaw`)
 - `TENSHU_PORT` — Override server port (default: `3001`)
+- `RESULTS_TSV` — Override results.tsv path (default: `~/clawd/team/knowledge/results.tsv`)
 
 ## Architecture
 
@@ -56,7 +59,7 @@ tenshu/
 └── client/     # Vite + React SPA + Shadcn/ui + Three.js
 ```
 
-**Data flow:** Server reads `openclaw.json` as single source of truth → polls gateway for live sessions → watches agent workspaces for file changes → broadcasts updates via WebSocket → client renders in real-time.
+**Data flow:** Server reads `openclaw.json` as single source of truth → polls `openclaw sessions` CLI for live sessions → watches agent workspaces for file changes → reads `nvidia-smi` and `/proc` for system metrics → broadcasts updates via WebSocket → client renders in real-time.
 
 ## Tech Stack
 

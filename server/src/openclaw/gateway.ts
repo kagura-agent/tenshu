@@ -1,36 +1,28 @@
 import type { AgentState } from "@tenshu/shared";
-import { getConfig } from "./config.js";
-
-interface GatewaySession {
-  agentId: string;
-  sessionId: string;
-  label?: string;
-  lastActivity?: string;
-}
+import { listSessions } from "./cli.js";
 
 export async function fetchActiveSessions(): Promise<AgentState[]> {
-  const { gatewayPort, gatewayToken } = getConfig();
-  const url = `http://localhost:${gatewayPort}/api/sessions`;
-
   try {
-    const res = await fetch(url, {
-      headers: { Authorization: `Bearer ${gatewayToken}` },
-      signal: AbortSignal.timeout(3000),
+    const sessions = await listSessions();
+
+    // Sessions with recent activity (within last 5 minutes) are "working"
+    const now = Date.now();
+    const ACTIVE_THRESHOLD = 5 * 60 * 1000;
+
+    return sessions.map((s) => {
+      const lastMs = s.lastActivity ? new Date(s.lastActivity).getTime() : 0;
+      const isActive = now - lastMs < ACTIVE_THRESHOLD;
+
+      return {
+        id: s.agentId,
+        status: isActive ? ("working" as const) : ("idle" as const),
+        currentTask: s.label,
+        sessionId: s.id,
+        lastActivity: s.lastActivity,
+        model: s.model,
+      };
     });
-
-    if (!res.ok) return [];
-
-    const sessions: GatewaySession[] = await res.json();
-
-    return sessions.map((s) => ({
-      id: s.agentId,
-      status: "working" as const,
-      currentTask: s.label,
-      sessionId: s.sessionId,
-      lastActivity: s.lastActivity,
-    }));
   } catch {
-    // Gateway may be offline — that's fine
     return [];
   }
 }
