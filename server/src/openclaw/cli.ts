@@ -14,21 +14,65 @@ async function run(args: string[]): Promise<string> {
   }
 }
 
-function parseJSON<T>(raw: string): T {
+function parseJSON(raw: string): unknown {
   const trimmed = raw.trim();
-  const start = trimmed.indexOf("[") !== -1 ? trimmed.indexOf("[") : trimmed.indexOf("{");
-  if (start === -1) throw new Error(`Unexpected CLI output: ${trimmed.slice(0, 100)}`);
+  // Find the first { or [ (whichever comes first)
+  const braceIdx = trimmed.indexOf("{");
+  const bracketIdx = trimmed.indexOf("[");
+  let start: number;
+  if (braceIdx === -1 && bracketIdx === -1) {
+    throw new Error(`Unexpected CLI output: ${trimmed.slice(0, 100)}`);
+  } else if (braceIdx === -1) {
+    start = bracketIdx;
+  } else if (bracketIdx === -1) {
+    start = braceIdx;
+  } else {
+    start = Math.min(braceIdx, bracketIdx);
+  }
   return JSON.parse(trimmed.slice(start));
+}
+
+interface CLISessionOutput {
+  sessions?: CLISession[];
+}
+
+interface CLISession {
+  sessionId: string;
+  agentId: string;
+  model?: string;
+  inputTokens?: number;
+  outputTokens?: number;
+  totalTokens?: number;
+  updatedAt?: number;
+  key?: string;
 }
 
 export async function listSessions(): Promise<Session[]> {
   const raw = await run(["sessions", "--all-agents", "--json"]);
-  return parseJSON<Session[]>(raw);
+  const parsed = parseJSON(raw) as CLISessionOutput;
+  const sessions = parsed.sessions ?? [];
+  return sessions.map((s) => ({
+    id: s.sessionId,
+    agentId: s.agentId,
+    label: s.key,
+    startedAt: s.updatedAt ? new Date(s.updatedAt).toISOString() : new Date().toISOString(),
+    lastActivity: s.updatedAt ? new Date(s.updatedAt).toISOString() : new Date().toISOString(),
+    inputTokens: s.inputTokens ?? 0,
+    outputTokens: s.outputTokens ?? 0,
+    totalTokens: s.totalTokens ?? 0,
+    model: s.model ?? "unknown",
+    cost: 0, // local models = $0
+  }));
+}
+
+interface CLICronOutput {
+  jobs?: CronJob[];
 }
 
 export async function listCronJobs(): Promise<CronJob[]> {
   const raw = await run(["cron", "list", "--json", "--all"]);
-  return parseJSON<CronJob[]>(raw);
+  const parsed = parseJSON(raw) as CLICronOutput;
+  return parsed.jobs ?? [];
 }
 
 export async function toggleCronJob(id: string, enabled: boolean): Promise<void> {
@@ -41,5 +85,5 @@ export async function runCronJob(id: string): Promise<void> {
 
 export async function getCronRuns(id: string): Promise<CronRun[]> {
   const raw = await run(["cron", "runs", id, "--json"]);
-  return parseJSON<CronRun[]>(raw);
+  return parseJSON(raw) as CronRun[];
 }
