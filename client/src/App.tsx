@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Sidebar } from "./components/Sidebar";
 import { Dashboard } from "./pages/Dashboard";
+import { Office } from "./pages/Office";
 import { Sessions } from "./pages/Sessions";
 import { Cron } from "./pages/Cron";
 
@@ -16,7 +17,7 @@ function App() {
           <main className="flex-1 overflow-auto p-6">
             <Routes>
               <Route path="/" element={<Dashboard />} />
-              <Route path="/office" element={<div>Office — coming soon</div>} />
+              <Route path="/office" element={<Office />} />
               <Route path="/sessions" element={<Sessions />} />
               <Route path="/cron" element={<Cron />} />
             </Routes>
