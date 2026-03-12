@@ -81,6 +81,48 @@ export interface WSMessage<T = unknown> {
   timestamp: string;
 }
 
+// Results.tsv row — cycle experiment log (Karpathy autoresearch pattern)
+export interface ResultRow {
+  timestamp: ISOTimestamp;
+  cycle: number;
+  task: string;
+  agent: string;
+  score: number;
+  status: "keep" | "discard" | "crash" | "skip";
+  description: string;
+}
+
+// System resource metrics
+export interface SystemResources {
+  gpu: {
+    name: string;
+    tempC: number;
+    utilPercent: number;
+    memUsedMB: number;
+    memTotalMB: number;
+    powerW: number;
+    powerCapW: number;
+  } | null;
+  cpu: {
+    usagePercent: number;
+    cores: number;
+  };
+  memory: {
+    usedMB: number;
+    totalMB: number;
+  };
+  disk: {
+    usedGB: number;
+    totalGB: number;
+    path: string;
+  };
+  loadedModels: Array<{
+    name: string;
+    sizeGB: number;
+  }>;
+  uptime: string;
+}
+
 // Config file shape
 export interface TenshuConfig {
   openclawDir: string;

@@ -7,6 +7,8 @@ import { loadConfig, watchConfig } from "./openclaw/config.js";
 import agentRoutes from "./routes/agents.js";
 import sessionRoutes from "./routes/sessions.js";
 import cronRoutes from "./routes/cron.js";
+import resultsRoutes from "./routes/results.js";
+import systemRoutes from "./routes/system.js";
 import { addClient, removeClient } from "./ws/handler.js";
 import { startGatewayPoller, startWorkspaceWatchers } from "./ws/watchers.js";
 
@@ -34,6 +36,8 @@ app.get("/api/health", (c) =>
 app.route("/api/agents", agentRoutes);
 app.route("/api/sessions", sessionRoutes);
 app.route("/api/cron", cronRoutes);
+app.route("/api/results", resultsRoutes);
+app.route("/api/system", systemRoutes);
 
 app.get(
   "/ws",

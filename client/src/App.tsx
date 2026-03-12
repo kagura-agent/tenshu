@@ -5,6 +5,8 @@ import { Dashboard } from "./pages/Dashboard";
 import { Office } from "./pages/Office";
 import { Sessions } from "./pages/Sessions";
 import { Cron } from "./pages/Cron";
+import { Results } from "./pages/Results";
+import { System } from "./pages/System";
 
 const queryClient = new QueryClient();
 
@@ -20,6 +22,8 @@ function App() {
               <Route path="/office" element={<Office />} />
               <Route path="/sessions" element={<Sessions />} />
               <Route path="/cron" element={<Cron />} />
+              <Route path="/results" element={<Results />} />
+              <Route path="/system" element={<System />} />
             </Routes>
           </main>
         </div>
