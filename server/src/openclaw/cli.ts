@@ -17,7 +17,7 @@ async function run(args: string[]): Promise<string> {
 function parseJSON<T>(raw: string): T {
   const trimmed = raw.trim();
   const start = trimmed.indexOf("[") !== -1 ? trimmed.indexOf("[") : trimmed.indexOf("{");
-  if (start === -1) return [] as unknown as T;
+  if (start === -1) throw new Error(`Unexpected CLI output: ${trimmed.slice(0, 100)}`);
   return JSON.parse(trimmed.slice(start));
 }
 

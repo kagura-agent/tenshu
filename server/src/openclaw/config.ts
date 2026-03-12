@@ -4,7 +4,7 @@ import { join } from "node:path";
 import type { AgentConfig } from "@tenshu/shared";
 
 function resolvePath(p: string): string {
-  return p.startsWith("~") ? p.replace("~", homedir()) : p;
+  return p.replace(/^~(?=\/|$)/, homedir());
 }
 
 export interface OpenClawConfig {

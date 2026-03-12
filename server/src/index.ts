@@ -11,7 +11,13 @@ import { addClient, removeClient } from "./ws/handler.js";
 import { startGatewayPoller, startWorkspaceWatchers } from "./ws/watchers.js";
 
 const openclawDir = process.env.OPENCLAW_DIR || DEFAULT_OPENCLAW_DIR;
-loadConfig(openclawDir);
+try {
+  loadConfig(openclawDir);
+} catch (e) {
+  console.error("[tenshu] Could not load openclaw.json:", (e as Error).message);
+  console.error("[tenshu] Set OPENCLAW_DIR or ensure ~/.openclaw/openclaw.json exists.");
+  process.exit(1);
+}
 watchConfig(openclawDir, (config) => {
   console.log(`[tenshu] openclaw.json reloaded — ${config.agents.length} agents`);
 });
