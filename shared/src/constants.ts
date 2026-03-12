@@ -1,4 +1,6 @@
-export const STATUS_COLORS: Record<string, string> = {
+import type { AgentStatus } from "./types.js";
+
+export const STATUS_COLORS: Record<AgentStatus, string> = {
   working: "#22c55e",
   thinking: "#3b82f6",
   idle: "#6b7280",

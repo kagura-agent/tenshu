@@ -13,13 +13,16 @@ export interface AgentConfig {
 // Runtime agent state — derived from gateway + file watchers
 export type AgentStatus = "idle" | "working" | "thinking" | "error" | "offline";
 
+/** ISO 8601 timestamp string, e.g. "2026-03-12T14:00:00.000Z" */
+export type ISOTimestamp = string;
+
 export interface AgentState {
   id: string;
   status: AgentStatus;
   currentTask?: string;
   model?: string;
   sessionId?: string;
-  lastActivity?: string; // ISO timestamp
+  lastActivity?: ISOTimestamp;
 }
 
 // Combined agent info for the UI
@@ -35,8 +38,8 @@ export interface Session {
   id: string;
   agentId: string;
   label?: string;
-  startedAt: string;
-  lastActivity: string;
+  startedAt: ISOTimestamp;
+  lastActivity: ISOTimestamp;
   inputTokens: number;
   outputTokens: number;
   totalTokens: number;
@@ -50,16 +53,16 @@ export interface CronJob {
   name: string;
   schedule: string;     // cron expression
   enabled: boolean;
-  lastRun?: string;     // ISO timestamp
-  nextRun?: string;     // ISO timestamp
+  lastRun?: ISOTimestamp;
+  nextRun?: ISOTimestamp;
   lastStatus?: "success" | "error";
 }
 
 export interface CronRun {
   id: string;
   jobId: string;
-  startedAt: string;
-  finishedAt?: string;
+  startedAt: ISOTimestamp;
+  finishedAt?: ISOTimestamp;
   status: "running" | "success" | "error";
   output?: string;
 }
@@ -72,9 +75,9 @@ export type WSMessageType =
   | "cron:run"
   | "connected";
 
-export interface WSMessage {
+export interface WSMessage<T = unknown> {
   type: WSMessageType;
-  payload: unknown;
+  payload: T;
   timestamp: string;
 }
 
