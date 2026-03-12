@@ -1,0 +1,16 @@
+{
+  "name": "tenshu",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Real-time dashboard for OpenClaw AI agent teams",
+  "workspaces": ["shared", "server", "client"],
+  "scripts": {
+    "dev": "concurrently -n server,client -c green,blue \"npm run dev -w server\" \"npm run dev -w client\"",
+    "build": "npm run build -w shared && npm run build -w server && npm run build -w client",
+    "test": "npm run test -w shared && npm run test -w server"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0",
+    "typescript": "^5.7.0"
+  }
+}
