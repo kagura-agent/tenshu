@@ -1,63 +1,149 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
   <defs>
-    <radialGradient id="sky" cx="50%" cy="30%" r="70%">
-      <stop offset="0%" stop-color="#2d1f3d"/>
-      <stop offset="100%" stop-color="#1a1018"/>
+    <radialGradient id="sky" cx="50%" cy="20%" r="80%">
+      <stop offset="0%" stop-color="#3d2850"/>
+      <stop offset="60%" stop-color="#2a1a38"/>
+      <stop offset="100%" stop-color="#1e1228"/>
     </radialGradient>
     <linearGradient id="ground" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#2a1e28"/>
-      <stop offset="100%" stop-color="#1a1018"/>
+      <stop offset="0%" stop-color="#3a2838"/>
+      <stop offset="50%" stop-color="#4a3848"/>
+      <stop offset="100%" stop-color="#2e2030"/>
     </linearGradient>
+    <radialGradient id="moonGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#fff5e6" stop-opacity="0.4"/>
+      <stop offset="60%" stop-color="#ffd4a8" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="#ffd4a8" stop-opacity="0"/>
+    </radialGradient>
   </defs>
+
   <!-- Sky -->
   <rect width="1920" height="1080" fill="url(#sky)"/>
-  <!-- Ground plane -->
-  <rect y="540" width="1920" height="540" fill="url(#ground)"/>
-  <!-- Sand patterns (zen raking) -->
-  <g stroke="#3d2e38" stroke-width="1.5" fill="none" opacity="0.4">
-    <path d="M0 600 Q240 580 480 600 Q720 620 960 600 Q1200 580 1440 600 Q1680 620 1920 600"/>
-    <path d="M0 650 Q240 630 480 650 Q720 670 960 650 Q1200 630 1440 650 Q1680 670 1920 650"/>
+
+  <!-- Ground plane - sand/gravel area -->
+  <rect y="480" width="1920" height="600" fill="url(#ground)"/>
+
+  <!-- Sand patterns (zen raking) - much more visible -->
+  <g stroke="#8a6a80" stroke-width="2" fill="none" opacity="0.5">
+    <path d="M0 540 Q240 520 480 540 Q720 560 960 540 Q1200 520 1440 540 Q1680 560 1920 540"/>
+    <path d="M0 580 Q240 560 480 580 Q720 600 960 580 Q1200 560 1440 580 Q1680 600 1920 580"/>
+    <path d="M0 620 Q240 600 480 620 Q720 640 960 620 Q1200 600 1440 620 Q1680 640 1920 620"/>
+    <path d="M0 660 Q240 640 480 660 Q720 680 960 660 Q1200 640 1440 660 Q1680 680 1920 660"/>
     <path d="M0 700 Q240 680 480 700 Q720 720 960 700 Q1200 680 1440 700 Q1680 720 1920 700"/>
-    <path d="M0 750 Q240 730 480 750 Q720 770 960 750 Q1200 730 1440 750 Q1680 770 1920 750"/>
-    <path d="M0 800 Q240 780 480 800 Q720 820 960 800 Q1200 780 1440 800 Q1680 820 1920 800"/>
-    <path d="M0 850 Q240 830 480 850 Q720 870 960 850 Q1200 830 1440 850 Q1680 870 1920 850"/>
+    <path d="M0 740 Q240 720 480 740 Q720 760 960 740 Q1200 720 1440 740 Q1680 760 1920 740"/>
+    <path d="M0 780 Q240 760 480 780 Q720 800 960 780 Q1200 760 1440 780 Q1680 800 1920 780"/>
+    <path d="M0 820 Q240 800 480 820 Q720 840 960 820 Q1200 800 1440 820 Q1680 840 1920 820"/>
+    <path d="M0 860 Q240 840 480 860 Q720 880 960 860 Q1200 840 1440 860 Q1680 880 1920 860"/>
     <path d="M0 900 Q240 880 480 900 Q720 920 960 900 Q1200 880 1440 900 Q1680 920 1920 900"/>
-    <path d="M0 950 Q240 930 480 950 Q720 970 960 950 Q1200 930 1440 950 Q1680 970 1920 950"/>
+    <path d="M0 940 Q240 920 480 940 Q720 960 960 940 Q1200 920 1440 940 Q1680 960 1920 940"/>
+    <path d="M0 980 Q240 960 480 980 Q720 1000 960 980 Q1200 960 1440 980 Q1680 1000 1920 980"/>
   </g>
-  <!-- Circular raking around stones -->
-  <g stroke="#3d2e38" stroke-width="1" fill="none" opacity="0.3">
-    <ellipse cx="400" cy="720" rx="80" ry="40"/>
-    <ellipse cx="400" cy="720" rx="100" ry="50"/>
-    <ellipse cx="400" cy="720" rx="120" ry="60"/>
-    <ellipse cx="1500" cy="780" rx="70" ry="35"/>
-    <ellipse cx="1500" cy="780" rx="90" ry="45"/>
-    <ellipse cx="1500" cy="780" rx="110" ry="55"/>
+
+  <!-- Circular raking around stones - more prominent -->
+  <g stroke="#9a7a90" stroke-width="2" fill="none" opacity="0.5">
+    <ellipse cx="350" cy="680" rx="90" ry="45"/>
+    <ellipse cx="350" cy="680" rx="115" ry="58"/>
+    <ellipse cx="350" cy="680" rx="140" ry="70"/>
+    <ellipse cx="350" cy="680" rx="165" ry="82"/>
+    <ellipse cx="1550" cy="740" rx="80" ry="40"/>
+    <ellipse cx="1550" cy="740" rx="105" ry="52"/>
+    <ellipse cx="1550" cy="740" rx="130" ry="65"/>
+    <ellipse cx="1550" cy="740" rx="155" ry="78"/>
+    <ellipse cx="960" cy="850" rx="60" ry="30"/>
+    <ellipse cx="960" cy="850" rx="80" ry="40"/>
+    <ellipse cx="960" cy="850" rx="100" ry="50"/>
   </g>
-  <!-- Zen stones -->
-  <ellipse cx="400" cy="710" rx="35" ry="22" fill="#3a3040" opacity="0.8"/>
-  <ellipse cx="420" cy="705" rx="20" ry="14" fill="#4a3e50" opacity="0.6"/>
-  <ellipse cx="1500" cy="770" rx="30" ry="18" fill="#3a3040" opacity="0.8"/>
-  <!-- Moon -->
-  <circle cx="1600" cy="150" r="60" fill="#f9e4d4" opacity="0.15"/>
-  <circle cx="1615" cy="145" r="55" fill="#2d1f3d" opacity="0.9"/>
-  <!-- Cherry tree silhouette -->
-  <g opacity="0.12" fill="#f472b6">
-    <circle cx="200" cy="200" r="80"/>
-    <circle cx="280" cy="180" r="60"/>
-    <circle cx="150" cy="250" r="50"/>
-    <circle cx="260" cy="260" r="45"/>
-    <rect x="215" y="280" width="8" height="300" fill="#3a2030"/>
+
+  <!-- Zen stones - larger and more visible -->
+  <g>
+    <!-- Large stone group left -->
+    <ellipse cx="350" cy="665" rx="50" ry="30" fill="#5a4860" stroke="#6a5870" stroke-width="1"/>
+    <ellipse cx="375" cy="658" rx="28" ry="18" fill="#6a5870"/>
+    <ellipse cx="330" cy="670" rx="18" ry="12" fill="#4a3850"/>
+    <!-- Stone group right -->
+    <ellipse cx="1550" cy="725" rx="42" ry="25" fill="#5a4860" stroke="#6a5870" stroke-width="1"/>
+    <ellipse cx="1570" cy="718" rx="22" ry="14" fill="#6a5870"/>
+    <!-- Small stone center -->
+    <ellipse cx="960" cy="840" rx="25" ry="16" fill="#5a4860" stroke="#6a5870" stroke-width="1"/>
   </g>
-  <!-- Stars -->
-  <g fill="#f9e4d4" opacity="0.15">
-    <circle cx="500" cy="80" r="1.5"/>
-    <circle cx="800" cy="120" r="1"/>
-    <circle cx="1100" cy="60" r="1.5"/>
-    <circle cx="1300" cy="180" r="1"/>
-    <circle cx="700" cy="200" r="1"/>
-    <circle cx="950" cy="150" r="1.5"/>
-    <circle cx="1700" cy="100" r="1"/>
-    <circle cx="300" cy="350" r="1"/>
-    <circle cx="1400" cy="300" r="1.5"/>
+
+  <!-- Moon - brighter -->
+  <circle cx="1600" cy="140" r="70" fill="url(#moonGlow)"/>
+  <circle cx="1600" cy="140" r="45" fill="#f9e4d4" opacity="0.2"/>
+  <circle cx="1618" cy="133" r="42" fill="url(#sky)"/>
+
+  <!-- Cherry tree - much more visible -->
+  <g>
+    <!-- Trunk -->
+    <path d="M180 580 Q175 450 190 350 Q195 300 210 280" stroke="#5a3040" stroke-width="12" fill="none" stroke-linecap="round"/>
+    <path d="M190 400 Q230 360 260 340" stroke="#5a3040" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <path d="M185 450 Q150 410 130 380" stroke="#5a3040" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <path d="M195 350 Q240 310 270 290" stroke="#5a3040" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <!-- Blossoms -->
+    <circle cx="210" cy="260" r="50" fill="#f472b6" opacity="0.25"/>
+    <circle cx="260" cy="310" r="40" fill="#ff8fa3" opacity="0.2"/>
+    <circle cx="270" cy="275" r="35" fill="#f472b6" opacity="0.22"/>
+    <circle cx="130" cy="360" r="38" fill="#ff8fa3" opacity="0.2"/>
+    <circle cx="155" cy="330" r="30" fill="#f472b6" opacity="0.22"/>
+    <circle cx="240" cy="340" r="25" fill="#ffb7c5" opacity="0.18"/>
+    <circle cx="190" cy="290" r="45" fill="#ffb7c5" opacity="0.2"/>
   </g>
+
+  <!-- Second smaller tree on right -->
+  <g>
+    <path d="M1750 580 Q1755 500 1740 440" stroke="#5a3040" stroke-width="8" fill="none" stroke-linecap="round"/>
+    <path d="M1745 480 Q1710 450 1700 430" stroke="#5a3040" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <circle cx="1740" cy="420" r="35" fill="#f472b6" opacity="0.2"/>
+    <circle cx="1700" cy="415" r="28" fill="#ff8fa3" opacity="0.18"/>
+    <circle cx="1720" cy="400" r="30" fill="#ffb7c5" opacity="0.16"/>
+  </g>
+
+  <!-- Bamboo fence in background -->
+  <g stroke="#5a4048" stroke-width="3" opacity="0.3">
+    <line x1="600" y1="350" x2="600" y2="520"/>
+    <line x1="630" y1="345" x2="630" y2="520"/>
+    <line x1="660" y1="350" x2="660" y2="520"/>
+    <line x1="690" y1="348" x2="690" y2="520"/>
+    <line x1="720" y1="352" x2="720" y2="520"/>
+    <line x1="750" y1="347" x2="750" y2="520"/>
+    <line x1="780" y1="350" x2="780" y2="520"/>
+    <!-- Horizontal ties -->
+    <line x1="595" y1="400" x2="785" y2="397" stroke-width="2"/>
+    <line x1="595" y1="460" x2="785" y2="458" stroke-width="2"/>
+  </g>
+
+  <!-- Stone lantern (tōrō) -->
+  <g opacity="0.4">
+    <!-- Base -->
+    <rect x="1340" y="560" width="40" height="8" rx="2" fill="#6a5870"/>
+    <!-- Pillar -->
+    <rect x="1354" y="510" width="12" height="50" fill="#5a4860"/>
+    <!-- Light chamber -->
+    <rect x="1342" y="490" width="36" height="22" rx="3" fill="#6a5870"/>
+    <!-- Glow -->
+    <circle cx="1360" cy="501" r="8" fill="#ffcc88" opacity="0.3"/>
+    <!-- Roof -->
+    <polygon points="1335,490 1385,490 1375,478 1345,478" fill="#5a4860"/>
+    <polygon points="1340,478 1380,478 1370,468 1350,468" fill="#6a5870"/>
+  </g>
+
+  <!-- Stars - brighter -->
+  <g fill="#f9e4d4" opacity="0.3">
+    <circle cx="500" cy="80" r="2"/>
+    <circle cx="800" cy="120" r="1.5"/>
+    <circle cx="1100" cy="60" r="2"/>
+    <circle cx="1300" cy="180" r="1.5"/>
+    <circle cx="700" cy="200" r="1.5"/>
+    <circle cx="950" cy="150" r="2"/>
+    <circle cx="1700" cy="90" r="1.5"/>
+    <circle cx="300" cy="120" r="1.5"/>
+    <circle cx="1400" cy="250" r="2"/>
+    <circle cx="450" cy="180" r="1"/>
+    <circle cx="1200" cy="100" r="1"/>
+    <circle cx="850" cy="50" r="1.5"/>
+  </g>
+
+  <!-- Subtle mist/fog layers -->
+  <rect y="450" width="1920" height="80" fill="#3d2850" opacity="0.15"/>
+  <rect y="500" width="1920" height="40" fill="#4a3060" opacity="0.1"/>
 </svg>

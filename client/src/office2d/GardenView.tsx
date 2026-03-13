@@ -91,7 +91,7 @@ export function GardenView({ agents, onSelectAgent, selectedAgentId }: GardenVie
         backgroundImage: "url(/assets/backgrounds/zen_garden_0.svg)",
         backgroundSize: "cover",
         backgroundPosition: "center",
-        opacity: 0.5,
+        opacity: 0.85,
       }} />
       <AnimatedCanvas theme="garden" intensity={intensity} />
 
