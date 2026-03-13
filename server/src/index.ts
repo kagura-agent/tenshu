@@ -1,4 +1,5 @@
 import { serve } from "@hono/node-server";
+import { serveStatic } from "@hono/node-server/serve-static";
 import { createNodeWebSocket } from "@hono/node-ws";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
@@ -15,16 +16,17 @@ import { addClient, removeClient } from "./ws/handler.js";
 import { startGatewayPoller, startWorkspaceWatchers } from "./ws/watchers.js";
 
 const openclawDir = process.env.OPENCLAW_DIR || DEFAULT_OPENCLAW_DIR;
+let demoMode = false;
 try {
   loadConfig(openclawDir);
+  watchConfig(openclawDir, (config) => {
+    console.log(`[tenshu] openclaw.json reloaded — ${config.agents.length} agents`);
+  });
 } catch (e) {
-  console.error("[tenshu] Could not load openclaw.json:", (e as Error).message);
-  console.error("[tenshu] Set OPENCLAW_DIR or ensure ~/.openclaw/openclaw.json exists.");
-  process.exit(1);
+  console.warn("[tenshu] Could not load openclaw.json:", (e as Error).message);
+  console.warn("[tenshu] Starting in demo mode — client will use simulated data.");
+  demoMode = true;
 }
-watchConfig(openclawDir, (config) => {
-  console.log(`[tenshu] openclaw.json reloaded — ${config.agents.length} agents`);
-});
 
 const app = new Hono();
 const { injectWebSocket, upgradeWebSocket } = createNodeWebSocket({ app });
@@ -32,7 +34,7 @@ const { injectWebSocket, upgradeWebSocket } = createNodeWebSocket({ app });
 app.use("/*", cors());
 
 app.get("/api/health", (c) =>
-  c.json({ status: "ok", name: "tenshu", version: "0.1.0" })
+  c.json({ status: "ok", name: "tenshu", version: "0.1.0", demo: demoMode })
 );
 
 app.route("/api/agents", agentRoutes);
@@ -55,10 +57,18 @@ app.get(
   }))
 );
 
+// Serve built client files in production / Docker
+app.use("/*", serveStatic({ root: "../client/dist" }));
+// SPA fallback — serve index.html for non-API routes
+app.get("*", serveStatic({ root: "../client/dist", path: "index.html" }));
+
 const port = Number(process.env.TENSHU_PORT) || DEFAULT_PORT;
-console.log(`天守 Tenshu server running on http://localhost:${port}`);
+const modeLabel = demoMode ? " (demo mode)" : "";
+console.log(`天守 Tenshu server running on http://localhost:${port}${modeLabel}`);
 const server = serve({ fetch: app.fetch, port });
 injectWebSocket(server);
 
-startGatewayPoller();
-startWorkspaceWatchers();
+if (!demoMode) {
+  startGatewayPoller();
+  startWorkspaceWatchers();
+}

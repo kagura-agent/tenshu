@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 import { useTheme } from "@/hooks/useTheme";
+import { AnimatedCanvas } from "@/office2d/AnimatedCanvas";
+import { useLocation } from "react-router-dom";
 
 const THEME_STYLES = {
   warroom: {
@@ -19,13 +21,21 @@ const THEME_STYLES = {
 export function ThemedMain({ children }: { children: ReactNode }) {
   const { theme } = useTheme();
   const styles = THEME_STYLES[theme];
+  const location = useLocation();
+  // Command page has its own full particles — skip ambient here
+  const isCommand = location.pathname === "/command";
 
   return (
     <main
-      className="flex-1 overflow-auto p-6 transition-colors duration-500"
+      className="flex-1 overflow-auto p-6 transition-colors duration-500 relative"
       style={{ background: styles.background }}
     >
-      {children}
+      {!isCommand && (
+        <AnimatedCanvas theme={theme} intensity={0.15} />
+      )}
+      <div className="relative z-10">
+        {children}
+      </div>
     </main>
   );
 }

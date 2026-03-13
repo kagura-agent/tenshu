@@ -12,6 +12,9 @@
     }
   },
   "scripts": {
-    "test": "echo 'no tests yet'"
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "vitest": "^3.2.4"
   }
 }

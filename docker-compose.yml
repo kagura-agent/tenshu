@@ -1,0 +1,13 @@
+services:
+  tenshu:
+    build: .
+    ports:
+      - "3001:3001"
+    environment:
+      - TENSHU_PORT=3001
+      # Mount your openclaw config for real data, or omit for demo mode
+      # - OPENCLAW_DIR=/openclaw
+    # volumes:
+    #   - ~/.openclaw:/openclaw:ro
+    #   - ~/clawd/team/knowledge/results.tsv:/data/results.tsv:ro
+    restart: unless-stopped

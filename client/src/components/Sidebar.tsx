@@ -1,8 +1,9 @@
-import { useState, useCallback } from "react";
+import { useCallback } from "react";
 import { NavLink } from "react-router-dom";
 import { LayoutDashboard, Swords, Monitor, Clock, FlaskConical, Cpu, Activity, Volume2, VolumeX } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
 import type { ThemeMode } from "@/hooks/useTheme";
+import { useSound } from "@/hooks/useSound";
 
 const navItems = [
   { to: "/", icon: LayoutDashboard, label: "Dashboard" },
@@ -20,18 +21,21 @@ const THEME_CONFIG: Record<ThemeMode, { accent: string; bg: string; border: stri
   garden: { accent: "#f472b6", bg: "#1a1018", border: "rgba(244, 114, 182, 0.15)", label: "庭園" },
 };
 
-const SOUND_STORAGE_KEY = "tenshu-sound-muted";
-
 export function Sidebar() {
   const { theme, setTheme } = useTheme();
   const config = THEME_CONFIG[theme];
-  const [muted, setMutedState] = useState(() => localStorage.getItem(SOUND_STORAGE_KEY) === "true");
+  const { play, muted, setMuted } = useSound();
+
+  const handleThemeSwitch = useCallback((key: ThemeMode) => {
+    if (key !== theme) {
+      setTheme(key);
+      play("theme-switch");
+    }
+  }, [theme, setTheme, play]);
 
   const toggleMute = useCallback(() => {
-    const next = !muted;
-    setMutedState(next);
-    localStorage.setItem(SOUND_STORAGE_KEY, String(next));
-  }, [muted]);
+    setMuted(!muted);
+  }, [muted, setMuted]);
 
   const themes: { key: ThemeMode; label: string }[] = [
     { key: "warroom", label: "作戦室" },
@@ -63,7 +67,7 @@ export function Sidebar() {
             return (
               <button
                 key={key}
-                onClick={() => setTheme(key)}
+                onClick={() => handleThemeSwitch(key)}
                 className="flex-1 px-1.5 py-1 rounded text-[9px] font-medium transition-all"
                 style={{
                   background: active ? `${tc.accent}22` : "transparent",

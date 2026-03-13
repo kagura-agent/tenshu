@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useSyncExternalStore } from "react";
 import { useTheme, type ThemeMode } from "./useTheme";
 
 type SoundEvent = "status-working" | "status-idle" | "status-error" | "cycle-complete" | "theme-switch";
@@ -9,7 +9,19 @@ let audioCtx: AudioContext | null = null;
 
 function getCtx(): AudioContext {
   if (!audioCtx) audioCtx = new AudioContext();
+  if (audioCtx.state === "suspended") audioCtx.resume();
   return audioCtx;
+}
+
+// Shared muted state so all useSound() instances stay in sync
+let mutedState = localStorage.getItem(STORAGE_KEY) === "true";
+const listeners = new Set<() => void>();
+function getMuted() { return mutedState; }
+function subscribeMuted(cb: () => void) { listeners.add(cb); return () => listeners.delete(cb); }
+function writeMuted(val: boolean) {
+  mutedState = val;
+  localStorage.setItem(STORAGE_KEY, String(val));
+  listeners.forEach((cb) => cb());
 }
 
 // --- Synthesized sounds per theme ---
@@ -169,10 +181,10 @@ const SOUND_MAP: Record<ThemeMode, Record<SoundEvent, () => void>> = {
 
 export function useSound() {
   const { theme } = useTheme();
-  const mutedRef = useRef(localStorage.getItem(STORAGE_KEY) === "true");
+  const muted = useSyncExternalStore(subscribeMuted, getMuted);
 
   const play = useCallback((event: SoundEvent) => {
-    if (mutedRef.current) return;
+    if (getMuted()) return;
     try {
       SOUND_MAP[theme]?.[event]?.();
     } catch {
@@ -180,12 +192,11 @@ export function useSound() {
     }
   }, [theme]);
 
-  const setMuted = useCallback((muted: boolean) => {
-    mutedRef.current = muted;
-    localStorage.setItem(STORAGE_KEY, String(muted));
+  const setMuted = useCallback((val: boolean) => {
+    writeMuted(val);
   }, []);
 
-  return { play, muted: mutedRef.current, setMuted };
+  return { play, muted, setMuted };
 }
 
 export function useSoundOnStatusChange(agentStatuses: Record<string, string>) {

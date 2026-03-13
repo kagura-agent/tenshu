@@ -55,12 +55,14 @@ Live GPU/CPU/RAM/disk metrics, loaded Ollama models, and system uptime.
 - **Cron Manager** — View, toggle, and manually trigger scheduled tasks
 - **Results Log** — Experiment results with score trends, keep/discard ratcheting, and success rate stats
 - **Activity Feed** — Real-time orchestrator output, agent logs, and research artifact previews
+- **Demo Mode** — Simulated agents with cycling states, scores, and terminal output — auto-activates when OpenClaw isn't configured, or via `?demo=true` URL param
 - **System Monitor** — GPU temperature, utilization, VRAM, CPU, RAM, disk usage, and loaded Ollama models
+- **Docker Support** — Single-command deployment with `docker compose up`
 
 ## Prerequisites
 
-- Node.js 22+
-- [OpenClaw](https://github.com/openclaw) installed and configured (`~/.openclaw/openclaw.json`)
+- Node.js 22+ (or Docker)
+- [OpenClaw](https://github.com/openclaw) installed and configured (`~/.openclaw/openclaw.json`) — optional, demo mode works without it
 - Linux with NVIDIA GPU (for system monitoring — dashboard works without it)
 
 ## Quick Start
@@ -73,6 +75,18 @@ npm run dev
 ```
 
 This starts both the API server (port 3001) and the client dev server (port 5173). Open http://localhost:5173.
+
+### Docker
+
+```bash
+docker compose up --build
+```
+
+Open http://localhost:3001. Without an OpenClaw config mounted, the dashboard runs in demo mode with simulated agent data. To connect real agents, uncomment the volume mounts in `docker-compose.yml`.
+
+### Demo Mode
+
+If OpenClaw isn't configured, Tenshu automatically enters demo mode with 5 simulated agents cycling through working/thinking/idle/error states, fake score histories, and a live terminal feed. You can also force demo mode by adding `?demo=true` to any URL.
 
 ### Generating Character Art (Optional)
 
@@ -126,6 +140,8 @@ tenshu/
 | Server | Hono, WebSocket, chokidar |
 | Real-time | WebSocket (bidirectional) |
 | Monorepo | npm workspaces |
+| Deployment | Docker, docker compose |
+| Testing | Vitest, Testing Library |
 | Art Generation | ComfyUI + Flux Schnell (local GPU) |
 
 ## License

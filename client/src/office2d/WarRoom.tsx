@@ -103,17 +103,16 @@ export function WarRoom({ agents, onSelectAgent, selectedAgentId }: WarRoomProps
       {/* Animated particles on top of background */}
       <AnimatedCanvas theme="warroom" intensity={intensity} />
 
-      {/* Shoji screen top */}
-      <div className="relative z-10 flex h-12 items-end px-6 gap-2 shrink-0" style={{
-        background: "linear-gradient(to bottom, #1a1410 0%, transparent 100%)",
-      }}>
-        {Array.from({ length: 16 }).map((_, i) => (
-          <div key={i} className="flex-1 h-8 rounded-t-sm" style={{
-            background: "linear-gradient(to bottom, rgba(245, 230, 208, 0.15) 0%, rgba(245, 230, 208, 0.03) 100%)",
-            border: "1px solid rgba(180, 140, 80, 0.12)",
-            borderBottom: "none",
-          }} />
-        ))}
+      {/* Header */}
+      <div className="relative z-10 h-14 shrink-0 flex items-center justify-center">
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-500/30 to-transparent" />
+        <div className="flex items-center gap-4">
+          <div className="h-px w-20 bg-gradient-to-r from-transparent to-amber-500/30" />
+          <span className="text-amber-300/70 text-sm tracking-[0.4em] font-light">
+            作戦室 WAR ROOM
+          </span>
+          <div className="h-px w-20 bg-gradient-to-l from-transparent to-amber-500/30" />
+        </div>
       </div>
 
       {/* Current cycle banner */}
@@ -246,17 +245,9 @@ export function WarRoom({ agents, onSelectAgent, selectedAgentId }: WarRoomProps
         </div>
       )}
 
-      {/* Shoji screen bottom */}
-      <div className="relative z-10 flex h-12 items-start px-6 gap-2 shrink-0" style={{
-        background: "linear-gradient(to top, #1a1410 0%, transparent 100%)",
-      }}>
-        {Array.from({ length: 16 }).map((_, i) => (
-          <div key={i} className="flex-1 h-8 rounded-b-sm" style={{
-            background: "linear-gradient(to top, rgba(245, 230, 208, 0.15) 0%, rgba(245, 230, 208, 0.03) 100%)",
-            border: "1px solid rgba(180, 140, 80, 0.12)",
-            borderTop: "none",
-          }} />
-        ))}
+      {/* Bottom edge */}
+      <div className="relative z-10 h-3 shrink-0">
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-500/20 to-transparent" />
       </div>
 
       {/* Corner lanterns */}

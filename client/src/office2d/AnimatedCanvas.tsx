@@ -72,7 +72,7 @@ function createEnergy(w: number, h: number): Particle {
 }
 
 /** Sakura petals — drift down and sway */
-function createPetal(w: number, h: number): Particle {
+function createPetal(w: number, _h: number): Particle {
   return {
     x: Math.random() * w,
     y: -10,

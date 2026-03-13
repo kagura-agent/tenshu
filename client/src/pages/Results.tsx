@@ -1,7 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import type { ResultRow } from "@tenshu/shared";
-import { Card, CardContent } from "@/components/ui/card";
+import { ThemedPageHeader } from "@/components/ThemedPageHeader";
+import { ThemedCard } from "@/components/ThemedCard";
 import { Badge } from "@/components/ui/badge";
+import { useTheme } from "@/hooks/useTheme";
+import { useDemo } from "@/hooks/useDemo";
+import { useMockResults } from "@/hooks/useMockData";
 
 const STATUS_COLORS: Record<ResultRow["status"], string> = {
   keep: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
@@ -10,14 +14,14 @@ const STATUS_COLORS: Record<ResultRow["status"], string> = {
   skip: "bg-zinc-500/10 text-zinc-400 border-zinc-500/30",
 };
 
-function ScoreBar({ score }: { score: number }) {
+function ScoreBar({ score, accent }: { score: number; accent: string }) {
   const pct = (score / 10) * 100;
   const color =
-    score >= 8 ? "bg-emerald-500" : score >= 6 ? "bg-sky-500" : score >= 4 ? "bg-amber-500" : "bg-red-500";
+    score >= 8 ? "#10b981" : score >= 6 ? accent : score >= 4 ? "#f59e0b" : "#ef4444";
   return (
     <div className="flex items-center gap-2">
-      <div className="w-20 h-2 bg-zinc-800 rounded-full overflow-hidden">
-        <div className={`h-full rounded-full ${color}`} style={{ width: `${pct}%` }} />
+      <div className="w-20 h-2 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.05)" }}>
+        <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: color }} />
       </div>
       <span className="text-xs font-mono w-8">{score.toFixed(1)}</span>
     </div>
@@ -25,11 +29,20 @@ function ScoreBar({ score }: { score: number }) {
 }
 
 export function Results() {
-  const { data: rows = [], isLoading } = useQuery<ResultRow[]>({
+  const { theme } = useTheme();
+  const accent = theme === "warroom" ? "#f59e0b" : theme === "deck" ? "#06b6d4" : "#f472b6";
+  const { isDemo } = useDemo();
+  const mock = useMockResults();
+
+  const { data: realRows = [], isLoading: realLoading } = useQuery<ResultRow[]>({
     queryKey: ["results"],
     queryFn: () => fetch("/api/results").then((r) => r.json()),
     refetchInterval: 30000,
+    enabled: !isDemo,
   });
+
+  const rows = isDemo ? mock.data : realRows;
+  const isLoading = isDemo ? false : realLoading;
 
   if (isLoading) {
     return (
@@ -39,7 +52,6 @@ export function Results() {
     );
   }
 
-  // Compute stats from coder rows (primary work unit)
   const coderRows = rows.filter((r) => r.agent === "coder");
   const kept = coderRows.filter((r) => r.status === "keep");
   const avgScore =
@@ -52,83 +64,61 @@ export function Results() {
       ? Math.round((kept.length / coderRows.length) * 100)
       : 0;
 
-  // Reverse for newest-first display
   const displayRows = [...rows].reverse();
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Results</h1>
-        <p className="text-zinc-400 mt-1">
-          Cycle experiment log — ratcheting keeps only improvements
-        </p>
-      </div>
+      <ThemedPageHeader kanji="戦績" title="BATTLE RECORD" />
 
       {/* Stats row */}
       <div className="grid grid-cols-4 gap-4">
-        <Card className="bg-zinc-900 border-zinc-800">
-          <CardContent className="p-4">
-            <p className="text-xs text-zinc-500 uppercase tracking-wide">Total Cycles</p>
-            <p className="text-2xl font-bold mt-1">{coderRows.length}</p>
-          </CardContent>
-        </Card>
-        <Card className="bg-zinc-900 border-zinc-800">
-          <CardContent className="p-4">
-            <p className="text-xs text-zinc-500 uppercase tracking-wide">Kept</p>
-            <p className="text-2xl font-bold mt-1 text-emerald-400">{kept.length}</p>
-          </CardContent>
-        </Card>
-        <Card className="bg-zinc-900 border-zinc-800">
-          <CardContent className="p-4">
-            <p className="text-xs text-zinc-500 uppercase tracking-wide">Avg Score</p>
-            <p className="text-2xl font-bold mt-1">{avgScore.toFixed(1)}</p>
-          </CardContent>
-        </Card>
-        <Card className="bg-zinc-900 border-zinc-800">
-          <CardContent className="p-4">
-            <p className="text-xs text-zinc-500 uppercase tracking-wide">Success Rate</p>
-            <p className="text-2xl font-bold mt-1">{successRate}%</p>
-          </CardContent>
-        </Card>
+        <ThemedCard>
+          <p className="text-xs text-zinc-500 uppercase tracking-wider">Total Cycles</p>
+          <p className="text-2xl font-bold mt-1">{coderRows.length}</p>
+        </ThemedCard>
+        <ThemedCard>
+          <p className="text-xs text-zinc-500 uppercase tracking-wider">Kept</p>
+          <p className="text-2xl font-bold mt-1" style={{ color: accent }}>{kept.length}</p>
+        </ThemedCard>
+        <ThemedCard>
+          <p className="text-xs text-zinc-500 uppercase tracking-wider">Avg Score</p>
+          <p className="text-2xl font-bold mt-1">{avgScore.toFixed(1)}</p>
+        </ThemedCard>
+        <ThemedCard>
+          <p className="text-xs text-zinc-500 uppercase tracking-wider">Success Rate</p>
+          <p className="text-2xl font-bold mt-1">{successRate}%</p>
+        </ThemedCard>
       </div>
 
       {/* Score trend (last 10) */}
       {recentScores.length > 0 && (
-        <Card className="bg-zinc-900 border-zinc-800">
-          <CardContent className="p-4">
-            <p className="text-xs text-zinc-500 uppercase tracking-wide mb-3">
-              Recent Score Trend (last {recentScores.length})
-            </p>
-            <div className="flex items-end gap-1 h-16">
-              {recentScores.map((score, i) => {
-                const height = (score / 10) * 100;
-                const color =
-                  score >= 8
-                    ? "bg-emerald-500"
-                    : score >= 6
-                      ? "bg-sky-500"
-                      : score >= 4
-                        ? "bg-amber-500"
-                        : "bg-red-500";
-                return (
+        <ThemedCard glow>
+          <p className="text-xs text-zinc-500 uppercase tracking-wide mb-3">
+            Recent Score Trend (last {recentScores.length})
+          </p>
+          <div className="flex items-end gap-1 h-16">
+            {recentScores.map((score, i) => {
+              const height = (score / 10) * 100;
+              const barColor =
+                score >= 8 ? "#10b981" : score >= 6 ? accent : score >= 4 ? "#f59e0b" : "#ef4444";
+              return (
+                <div
+                  key={i}
+                  className="flex-1 flex flex-col items-center gap-1"
+                >
                   <div
-                    key={i}
-                    className="flex-1 flex flex-col items-center gap-1"
-                  >
-                    <div
-                      className={`w-full rounded-t ${color}`}
-                      style={{ height: `${height}%` }}
-                      title={`${score.toFixed(1)}/10`}
-                    />
-                    <span className="text-[10px] text-zinc-600">
-                      {score.toFixed(1)}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
+                    className="w-full rounded-t"
+                    style={{ height: `${height}%`, backgroundColor: barColor }}
+                    title={`${score.toFixed(1)}/10`}
+                  />
+                  <span className="text-[10px] text-zinc-600">
+                    {score.toFixed(1)}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </ThemedCard>
       )}
 
       {/* Results table */}
@@ -137,10 +127,10 @@ export function Results() {
           No results yet. Run an orchestrator cycle to generate data.
         </p>
       ) : (
-        <div className="overflow-x-auto">
+        <ThemedCard className="!p-0 overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-zinc-800 text-zinc-500 text-xs uppercase tracking-wide">
+              <tr className="border-b text-zinc-500 text-xs uppercase tracking-wide" style={{ borderColor: `${accent}22` }}>
                 <th className="text-left py-2 px-3">Time</th>
                 <th className="text-left py-2 px-3">Cycle</th>
                 <th className="text-left py-2 px-3">Task</th>
@@ -154,7 +144,8 @@ export function Results() {
               {displayRows.map((row, i) => (
                 <tr
                   key={i}
-                  className="border-b border-zinc-800/50 hover:bg-zinc-900/50"
+                  className="border-b hover:bg-white/[0.02]"
+                  style={{ borderColor: `${accent}11` }}
                 >
                   <td className="py-2 px-3 text-zinc-500 text-xs font-mono whitespace-nowrap">
                     {new Date(row.timestamp).toLocaleString(undefined, {
@@ -168,7 +159,7 @@ export function Results() {
                   <td className="py-2 px-3 text-zinc-300">{row.task}</td>
                   <td className="py-2 px-3 text-zinc-400">{row.agent}</td>
                   <td className="py-2 px-3">
-                    <ScoreBar score={row.score} />
+                    <ScoreBar score={row.score} accent={accent} />
                   </td>
                   <td className="py-2 px-3">
                     <Badge
@@ -185,7 +176,7 @@ export function Results() {
               ))}
             </tbody>
           </table>
-        </div>
+        </ThemedCard>
       )}
     </div>
   );
