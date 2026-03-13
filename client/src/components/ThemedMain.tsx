@@ -10,6 +10,10 @@ const THEME_STYLES = {
     background: "linear-gradient(135deg, #08081a 0%, #0c0c2e 50%, #08081a 100%)",
     borderColor: "rgba(6, 182, 212, 0.08)",
   },
+  garden: {
+    background: "linear-gradient(135deg, #1a1018 0%, #1e1420 50%, #1a1018 100%)",
+    borderColor: "rgba(244, 114, 182, 0.08)",
+  },
 };
 
 export function ThemedMain({ children }: { children: ReactNode }) {

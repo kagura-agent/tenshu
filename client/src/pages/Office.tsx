@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import type { Agent } from "@tenshu/shared";
 import { useAgents } from "@/hooks/useAgents";
 import { useTheme } from "@/hooks/useTheme";
+import { useSoundOnStatusChange } from "@/hooks/useSound";
 import { WarRoom } from "@/office2d/WarRoom";
 import { ControlDeck } from "@/office2d/ControlDeck";
 import AgentPanel from "@/office2d/AgentPanel";
@@ -10,6 +11,13 @@ export function Office() {
   const { agents, loading } = useAgents();
   const { theme } = useTheme();
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
+
+  const agentStatuses = useMemo(() => {
+    const map: Record<string, string> = {};
+    for (const a of agents) map[a.config.id] = a.state?.status ?? "offline";
+    return map;
+  }, [agents]);
+  useSoundOnStatusChange(agentStatuses);
 
   if (loading) {
     return (

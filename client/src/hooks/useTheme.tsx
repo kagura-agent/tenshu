@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
 
-export type ThemeMode = "warroom" | "deck";
+export type ThemeMode = "warroom" | "deck" | "garden";
 
 interface ThemeContextValue {
   theme: ThemeMode;
@@ -17,7 +17,8 @@ const STORAGE_KEY = "tenshu-theme";
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<ThemeMode>(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
-    return saved === "deck" ? "deck" : "warroom";
+    if (saved === "deck" || saved === "garden") return saved;
+    return "warroom";
   });
 
   useEffect(() => {

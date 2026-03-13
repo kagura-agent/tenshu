@@ -1,5 +1,6 @@
+import { useState, useCallback } from "react";
 import { NavLink } from "react-router-dom";
-import { LayoutDashboard, Swords, Monitor, Clock, FlaskConical, Cpu, Activity } from "lucide-react";
+import { LayoutDashboard, Swords, Monitor, Clock, FlaskConical, Cpu, Activity, Volume2, VolumeX } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
 import type { ThemeMode } from "@/hooks/useTheme";
 
@@ -16,11 +17,27 @@ const navItems = [
 const THEME_CONFIG: Record<ThemeMode, { accent: string; bg: string; border: string; label: string }> = {
   warroom: { accent: "#f59e0b", bg: "#1a1410", border: "rgba(180, 140, 80, 0.15)", label: "作戦室" },
   deck: { accent: "#06b6d4", bg: "#08081a", border: "rgba(6, 182, 212, 0.15)", label: "指令台" },
+  garden: { accent: "#f472b6", bg: "#1a1018", border: "rgba(244, 114, 182, 0.15)", label: "庭園" },
 };
+
+const SOUND_STORAGE_KEY = "tenshu-sound-muted";
 
 export function Sidebar() {
   const { theme, setTheme } = useTheme();
   const config = THEME_CONFIG[theme];
+  const [muted, setMutedState] = useState(() => localStorage.getItem(SOUND_STORAGE_KEY) === "true");
+
+  const toggleMute = useCallback(() => {
+    const next = !muted;
+    setMutedState(next);
+    localStorage.setItem(SOUND_STORAGE_KEY, String(next));
+  }, [muted]);
+
+  const themes: { key: ThemeMode; label: string }[] = [
+    { key: "warroom", label: "作戦室" },
+    { key: "deck", label: "指令台" },
+    { key: "garden", label: "庭園" },
+  ];
 
   return (
     <aside
@@ -40,28 +57,24 @@ export function Sidebar() {
       {/* Theme toggle */}
       <div className="px-3 mb-3">
         <div className="flex gap-1 p-0.5 rounded-md" style={{ background: "rgba(255,255,255,0.05)" }}>
-          <button
-            onClick={() => setTheme("warroom")}
-            className="flex-1 px-2 py-1 rounded text-[10px] font-medium transition-all"
-            style={{
-              background: theme === "warroom" ? `${config.accent}22` : "transparent",
-              color: theme === "warroom" ? config.accent : "rgba(161, 161, 170, 0.6)",
-              border: theme === "warroom" ? `1px solid ${config.accent}44` : "1px solid transparent",
-            }}
-          >
-            作戦室 War Room
-          </button>
-          <button
-            onClick={() => setTheme("deck")}
-            className="flex-1 px-2 py-1 rounded text-[10px] font-medium transition-all"
-            style={{
-              background: theme === "deck" ? `${THEME_CONFIG.deck.accent}22` : "transparent",
-              color: theme === "deck" ? THEME_CONFIG.deck.accent : "rgba(161, 161, 170, 0.6)",
-              border: theme === "deck" ? `1px solid ${THEME_CONFIG.deck.accent}44` : "1px solid transparent",
-            }}
-          >
-            指令台 Control Deck
-          </button>
+          {themes.map(({ key, label }) => {
+            const tc = THEME_CONFIG[key];
+            const active = theme === key;
+            return (
+              <button
+                key={key}
+                onClick={() => setTheme(key)}
+                className="flex-1 px-1.5 py-1 rounded text-[9px] font-medium transition-all"
+                style={{
+                  background: active ? `${tc.accent}22` : "transparent",
+                  color: active ? tc.accent : "rgba(161, 161, 170, 0.6)",
+                  border: active ? `1px solid ${tc.accent}44` : "1px solid transparent",
+                }}
+              >
+                {label}
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -90,8 +103,19 @@ export function Sidebar() {
         ))}
       </nav>
 
-      <div className="p-4" style={{ borderTop: `1px solid ${config.border}` }}>
+      <div className="p-4 flex items-center justify-between" style={{ borderTop: `1px solid ${config.border}` }}>
         <div className="text-xs text-zinc-600">Tenshu v0.1.0</div>
+        <button
+          onClick={toggleMute}
+          className="p-1.5 rounded-md transition-colors hover:bg-white/5"
+          title={muted ? "Unmute sounds" : "Mute sounds"}
+        >
+          {muted ? (
+            <VolumeX className="w-3.5 h-3.5 text-zinc-600" />
+          ) : (
+            <Volume2 className="w-3.5 h-3.5" style={{ color: config.accent }} />
+          )}
+        </button>
       </div>
     </aside>
   );
