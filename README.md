@@ -8,18 +8,23 @@ Real-time dashboard for [OpenClaw](https://github.com/openclaw) AI agent teams. 
 
 ## Screenshots
 
-### Command Center — War Room
-AI-generated anime character portraits, per-agent task history with scores, cherry blossom particle effects, and a Japanese dojo background.
+### Command Center — War Room (作戦室)
+AI-generated anime character portraits, per-agent task history with score trend sparklines, dust mote/firefly particles, and a Japanese dojo background.
 
 ![War Room](docs/screenshots/war-room.png)
 
-### Command Center — Control Deck
-Cyberpunk-themed mission control with neon grid, CRT scan lines, live terminal feed, and agent monitor stations.
+### Command Center — Control Deck (指令台)
+Cyberpunk-themed mission control with neon grid, CRT scan lines, live terminal feed, agent monitor stations, and rising energy particles.
 
 ![Control Deck](docs/screenshots/control-deck.png)
 
+### Command Center — Zen Garden (枯山水)
+Peaceful cherry blossom theme with falling sakura petals, pink/stone palette, zen rock garden background, and frosted glass agent cards.
+
+![Zen Garden](docs/screenshots/zen-garden.png)
+
 ### Dashboard
-Live agent status cards with WebSocket connection indicator, model info, and real-time activity feed.
+Live agent status cards with WebSocket connection indicator, model info, and real-time activity feed. Themed to match the active global theme.
 
 ![Dashboard](docs/screenshots/dashboard.png)
 
@@ -40,7 +45,11 @@ Live GPU/CPU/RAM/disk metrics, loaded Ollama models, and system uptime.
 
 ## Features
 
-- **Command Center** — Two themed views (War Room + Control Deck) with AI-generated anime character portraits, per-agent task history, live cycle status, and particle effects
+- **3 Immersive Themes** — War Room (amber/dojo), Control Deck (cyan/cyberpunk), and Zen Garden (pink/sakura) — global toggle applies to all pages with localStorage persistence
+- **Command Center** — Themed views with AI-generated anime character portraits, per-agent task history, score trend sparklines, live cycle status, and particle effects
+- **Error State UI** — Red glow borders, shake animation, and error messages when agents enter error status
+- **Anime Sound Effects** — Web Audio synthesized sounds per theme: taiko drums (War Room), synth beeps (Control Deck), wind chimes (Zen Garden) — plays on agent status changes with mute toggle
+- **Avatar Picker** — Click agent portraits to choose from 24 AI-generated character images or upload custom avatars
 - **Agent Dashboard** — Live status, current tasks, model info for all agents with real-time WebSocket updates
 - **Session Viewer** — Active Claude Code sessions with token counts, model, duration, and cost tracking
 - **Cron Manager** — View, toggle, and manually trigger scheduled tasks
@@ -113,7 +122,7 @@ tenshu/
 | Layer | Technology |
 |-------|-----------|
 | Client | Vite, React 19, Tailwind CSS v4, Shadcn/ui |
-| Command Views | HTML Canvas particles, AI-generated art (Flux Schnell) |
+| Command Views | HTML Canvas particles, Web Audio synthesis, AI-generated art (Flux Schnell) |
 | Server | Hono, WebSocket, chokidar |
 | Real-time | WebSocket (bidirectional) |
 | Monorepo | npm workspaces |
