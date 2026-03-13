@@ -38,6 +38,16 @@ Real-time orchestrator output, per-agent logs with timestamps, and research arti
 
 ![Activity](docs/screenshots/activity.png)
 
+### Knowledge Browser
+Searchable artifact library with type filtering, stats dashboard, agent attribution, and click-to-expand content viewer.
+
+![Knowledge](docs/screenshots/knowledge.png)
+
+### Agent Interaction Map
+Force-directed graph showing agent delegation flow with animated particles, delegation counts, and per-connection average scores.
+
+![Interactions](docs/screenshots/interactions.png)
+
 ### System Monitor
 Live GPU/CPU/RAM/disk metrics, loaded Ollama models, and system uptime.
 
@@ -56,6 +66,9 @@ Live GPU/CPU/RAM/disk metrics, loaded Ollama models, and system uptime.
 - **Cron Manager** — View, toggle, and manually trigger scheduled tasks
 - **Results Log** — Experiment results with SVG score trend line chart, ratchet floor visualization, per-agent filtering, and task type performance breakdown
 - **Activity Feed** — Real-time orchestrator output, cycle timeline waterfall chart, agent logs, and research artifact previews
+- **Knowledge Browser** — Searchable artifact library with type filtering (research/coder/qa), stats dashboard, and full-content viewer
+- **Agent Interaction Map** — Force-directed graph with animated particle flow showing agent-to-agent delegation patterns, delegation counts, and avg scores
+- **Notification Center** — Bell icon with unread badge, auto-detects high scores, low scores, agent timeouts, and orchestrator errors from live data
 - **Demo Mode** — Simulated agents with cycling states, scores, and terminal output — auto-activates when OpenClaw isn't configured, or via `?demo=true` URL param
 - **System Monitor** — GPU temperature, utilization, VRAM, CPU, RAM, disk usage, and loaded Ollama models
 - **Docker Support** — Single-command deployment with `docker compose up`

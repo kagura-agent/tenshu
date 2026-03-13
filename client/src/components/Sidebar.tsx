@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { NavLink } from "react-router-dom";
-import { LayoutDashboard, Swords, Monitor, Clock, FlaskConical, Cpu, Activity, Volume2, VolumeX, BookOpen } from "lucide-react";
+import { LayoutDashboard, Swords, Monitor, Clock, FlaskConical, Cpu, Activity, Volume2, VolumeX, BookOpen, GitBranch } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
 import type { ThemeMode } from "@/hooks/useTheme";
 import { useSound } from "@/hooks/useSound";
@@ -14,6 +14,7 @@ const navItems = [
   { to: "/results", icon: FlaskConical, label: "Results" },
   { to: "/activity", icon: Activity, label: "Activity" },
   { to: "/knowledge", icon: BookOpen, label: "Knowledge" },
+  { to: "/interactions", icon: GitBranch, label: "Interactions" },
   { to: "/system", icon: Cpu, label: "System" },
 ];
 

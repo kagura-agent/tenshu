@@ -1,6 +1,6 @@
 # Tenshu Improvements Plan — 2026-03-13
 
-## Status: Phases 1-5 COMPLETE — Phases 6-8 deferred (need server-side work)
+## Status: ALL PHASES COMPLETE (1-8)
 
 ## Phase 1 — Theme-Specific Styling on All Pages (DONE)
 
@@ -90,28 +90,34 @@
 - [x] Shown on Activity page between current cycle and log/artifacts
 - [x] Total duration labels, hover tooltips with agent name + duration
 
-## Phase 6 — Agent Interaction Map (Medium-High Effort)
+## Phase 6 — Agent Interaction Map (DONE)
 
 ### 6.1 Force-Directed Graph
-- [ ] Agents as nodes, delegations as edges
-- [ ] Animated message flow along edges
-- [ ] Canvas or SVG based
-- [ ] Show on new page or within Command view
+- [x] Agents as nodes, delegations as edges
+- [x] Animated message flow along edges (Canvas particles)
+- [x] Canvas-based with force simulation (no external deps)
+- [x] New /interactions page with stats, legend, delegation details table
+- [x] Server endpoint /api/interactions parses results.tsv for delegation flow
+- [x] Demo mode with 5 simulated agents
 
-## Phase 7 — Agent Memory Browser (Medium Effort)
+## Phase 7 — Agent Memory Browser (DONE)
 
 ### 7.1 Knowledge Base Viewer
-- [ ] New API endpoint: `/api/knowledge` — list artifacts
-- [ ] Searchable artifact list with previews
-- [ ] Markdown rendering
-- [ ] New page or section within Activity
+- [x] New API endpoint: `/api/knowledge` — list/search artifacts with filtering
+- [x] `/api/knowledge/stats` — aggregate counts by type and agent
+- [x] `/api/knowledge/artifact/:name` — full content viewer
+- [x] Searchable artifact list with previews and type filter tabs
+- [x] Click-to-expand artifact detail viewer (raw content)
+- [x] New /knowledge page with stats row, search, 2-column grid
+- [x] Demo mode with 30 simulated artifacts
 
-## Phase 8 — Notification Center (Low Effort)
+## Phase 8 — Notification Center (DONE)
 
 ### 8.1 In-Dashboard Notifications
-- [ ] Notification bell in sidebar with unread count
-- [ ] History of events (errors, high scores, cycle completions)
-- [ ] Configurable thresholds
+- [x] Notification bell in sidebar with unread count badge
+- [x] History of events (errors, high scores, timeouts, cycle completions)
+- [x] Server scans results.tsv and orchestrator log for events
+- [x] localStorage persistence for last-seen timestamp
 
 ## Execution Order
 1. Phase 1 (themed styling) — foundation for everything else

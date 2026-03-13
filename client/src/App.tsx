@@ -13,6 +13,7 @@ import { Results } from "./pages/Results";
 import { System } from "./pages/System";
 import { Activity } from "./pages/Activity";
 import { Knowledge } from "./pages/Knowledge";
+import { Interactions } from "./pages/Interactions";
 
 const queryClient = new QueryClient();
 
@@ -35,6 +36,7 @@ function App() {
                   <Route path="/system" element={<System />} />
                   <Route path="/activity" element={<Activity />} />
                   <Route path="/knowledge" element={<Knowledge />} />
+                  <Route path="/interactions" element={<Interactions />} />
                 </Routes>
               </ThemedMain>
             </div>
