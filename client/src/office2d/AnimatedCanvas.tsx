@@ -1,6 +1,8 @@
 import { useRef, useEffect, useCallback } from "react";
 
-const MAX_PARTICLES = 40;
+const MAX_PARTICLES = 25;
+const TARGET_FPS = 30;
+const FRAME_INTERVAL = 1000 / TARGET_FPS;
 
 interface Particle {
   x: number;
@@ -91,30 +93,25 @@ function createEmber(w: number, h: number): Particle {
   };
 }
 
-function drawSakura(ctx: CanvasRenderingContext2D, p: Particle) {
-  ctx.save();
-  ctx.translate(p.x, p.y);
-  ctx.rotate(p.rotation);
+function drawSakura(ctx: CanvasRenderingContext2D, p: Particle, dpr: number) {
+  // Use setTransform instead of save/translate/rotate/restore
+  // Must include DPR scaling in the transform matrix
+  const cos = Math.cos(p.rotation) * dpr;
+  const sin = Math.sin(p.rotation) * dpr;
+  ctx.setTransform(cos, sin, -sin, cos, p.x * dpr, p.y * dpr);
   ctx.globalAlpha = p.opacity;
   ctx.fillStyle = p.color;
   ctx.beginPath();
   ctx.ellipse(0, 0, p.size * 0.6, p.size, 0, 0, Math.PI * 2);
   ctx.fill();
-  ctx.restore();
 }
 
-// Simple glow dot — no radial gradient per frame
+// Single circle glow dot — minimal draw calls
 function drawGlowDot(ctx: CanvasRenderingContext2D, p: Particle) {
-  ctx.globalAlpha = p.opacity * 0.3;
+  ctx.globalAlpha = p.opacity * 0.7;
   ctx.fillStyle = p.color;
   ctx.beginPath();
-  ctx.arc(p.x, p.y, p.size * 3, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.globalAlpha = p.opacity;
-  ctx.fillStyle = p.type === "energy" ? "#ffffff" : p.color;
-  ctx.beginPath();
-  ctx.arc(p.x, p.y, p.size * 0.5, 0, Math.PI * 2);
+  ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
   ctx.fill();
 }
 
@@ -124,8 +121,16 @@ export function AnimatedCanvas({ theme, intensity, className }: AnimatedCanvasPr
   const frameRef = useRef(0);
   const gridCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const lastSizeRef = useRef({ w: 0, h: 0 });
+  const lastFrameTimeRef = useRef(0);
 
-  const animate = useCallback(() => {
+  const animate = useCallback((timestamp: number) => {
+    frameRef.current = requestAnimationFrame(animate);
+
+    // Throttle to TARGET_FPS
+    const elapsed = timestamp - lastFrameTimeRef.current;
+    if (elapsed < FRAME_INTERVAL) return;
+    lastFrameTimeRef.current = timestamp - (elapsed % FRAME_INTERVAL);
+
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
@@ -194,7 +199,7 @@ export function AnimatedCanvas({ theme, intensity, className }: AnimatedCanvasPr
       for (let i = 0; i < particles.length; i++) {
         if (particles[i].type === "sakura") sakuraCount++;
       }
-      if (sakuraCount < 6) particles.push(createSakura(w));
+      if (sakuraCount < 4) particles.push(createSakura(w));
     }
 
     // Update & draw — single pass, no save/restore for simple shapes
@@ -226,7 +231,7 @@ export function AnimatedCanvas({ theme, intensity, className }: AnimatedCanvasPr
       }
 
       if (p.type === "sakura") {
-        drawSakura(ctx, p);
+        drawSakura(ctx, p, dpr);
       } else {
         drawGlowDot(ctx, p);
       }
@@ -235,7 +240,9 @@ export function AnimatedCanvas({ theme, intensity, className }: AnimatedCanvasPr
     }
     particles.length = writeIdx;
 
-    frameRef.current = requestAnimationFrame(animate);
+    // Reset transform after sakura draws used setTransform
+    const dpr2 = window.devicePixelRatio || 1;
+    ctx.setTransform(dpr2, 0, 0, dpr2, 0, 0);
   }, [theme, intensity]);
 
   useEffect(() => {
@@ -259,7 +266,7 @@ export function AnimatedCanvas({ theme, intensity, className }: AnimatedCanvasPr
 
     resize();
     window.addEventListener("resize", resize);
-    frameRef.current = requestAnimationFrame(animate);
+    frameRef.current = requestAnimationFrame((ts) => animate(ts));
 
     return () => {
       window.removeEventListener("resize", resize);
