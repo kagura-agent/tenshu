@@ -1,3 +1,5 @@
+import { useQuery } from "@tanstack/react-query";
+import type { ResultRow } from "@tenshu/shared";
 import { useAgents } from "@/hooks/useAgents";
 import { AgentCard } from "@/components/AgentCard";
 import { ActivityFeed } from "@/components/ActivityFeed";
@@ -6,6 +8,9 @@ import { ThemedCard } from "@/components/ThemedCard";
 import { useTheme } from "@/hooks/useTheme";
 import { useAgentHistory } from "@/hooks/useAgentHistory";
 import { usePowerLevel } from "@/hooks/usePowerLevel";
+import { useAchievements } from "@/hooks/useAchievements";
+import { useDemo } from "@/hooks/useDemo";
+import { useMockResults } from "@/hooks/useMockData";
 
 function AgentCardWithPower({ agent, history }: { agent: Parameters<typeof AgentCard>[0]["agent"]; history: Record<string, import("@/hooks/useAgentHistory").CycleEntry[]> }) {
   // Extract role from agent ID (e.g. "coder-bulma" -> "coder")
@@ -19,6 +24,18 @@ export function Dashboard() {
   const { agents, loading, connected } = useAgents();
   const { theme } = useTheme();
   const { data: history } = useAgentHistory(50);
+  const { isDemo } = useDemo();
+  const mock = useMockResults();
+
+  const { data: realResults = [] } = useQuery<ResultRow[]>({
+    queryKey: ["results"],
+    queryFn: () => fetch("/api/results").then((r) => r.json()),
+    refetchInterval: 30000,
+    enabled: !isDemo,
+  });
+
+  const results = isDemo ? mock.data : realResults;
+  const achievements = useAchievements(results);
 
   const activeCount = agents.filter(
     (a) => a.state.status === "working" || a.state.status === "thinking"
@@ -90,6 +107,32 @@ export function Dashboard() {
           <ActivityFeed />
         </div>
       </div>
+
+      {/* Achievements */}
+      {results.length > 0 && (
+        <div>
+          <h2 className="text-sm font-medium tracking-wider uppercase mb-3" style={{ color: `${accent}99` }}>
+            Achievements ({achievements.filter((a) => a.unlocked).length}/{achievements.length})
+          </h2>
+          <div className="flex flex-wrap gap-2">
+            {achievements.map((a) => (
+              <div
+                key={a.id}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs transition-all"
+                style={{
+                  background: a.unlocked ? `${accent}15` : "rgba(255,255,255,0.02)",
+                  border: `1px solid ${a.unlocked ? `${accent}44` : "rgba(255,255,255,0.05)"}`,
+                  opacity: a.unlocked ? 1 : 0.4,
+                }}
+                title={a.description}
+              >
+                <span>{a.icon}</span>
+                <span style={{ color: a.unlocked ? accent : "#52525b" }}>{a.name}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

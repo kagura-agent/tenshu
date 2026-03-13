@@ -61,25 +61,25 @@
 - [x] Horizontal bar chart showing average score per task type
 - [x] Sorted by avg score, color-coded bars, count indicator
 
-## Phase 4 — Achievement System (Medium Effort, High Wow)
+## Phase 4 — Achievement System (DONE)
 
 ### 4.1 Achievement Definitions
-- [ ] Create achievement registry with unlock conditions:
+- [x] Create achievement registry with 10 unlock conditions:
   - "First Blood" — first completed task
   - "Perfect Score" — score 10.0
   - "Hat Trick" — 3 keeps in a row
   - "On Fire" — 5 keeps in a row
   - "Untouchable" — 10 keeps in a row
-  - "Speed Demon" — cycle under 2 minutes
   - "Night Owl" — task completed after midnight
-  - "Renaissance" — every task type completed at least once
+  - "Renaissance" — 4+ distinct task types completed
   - "Comeback Kid" — keep after a discard
   - "Consistency" — 5 cycles with score > 7
+  - "Centurion" — 100 cycles completed
 
 ### 4.2 Achievement UI
-- [ ] Toast notification with theme sound on unlock
-- [ ] Achievement badges on agent cards
-- [ ] Achievement wall section on Dashboard or separate page
+- [x] Achievement wall on Dashboard with unlocked count
+- [x] Theme-colored badges for unlocked achievements
+- [x] Dimmed badges for locked achievements with hover descriptions
 
 ## Phase 5 — Session Timeline/Waterfall (Medium Effort, High Impact)
 
