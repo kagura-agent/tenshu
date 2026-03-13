@@ -5,6 +5,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { useSoundOnStatusChange } from "@/hooks/useSound";
 import { WarRoom } from "@/office2d/WarRoom";
 import { ControlDeck } from "@/office2d/ControlDeck";
+import { GardenView } from "@/office2d/GardenView";
 import AgentPanel from "@/office2d/AgentPanel";
 
 export function Office() {
@@ -31,8 +32,10 @@ export function Office() {
     <div className="relative w-full h-full -m-6">
       {theme === "warroom" ? (
         <WarRoom agents={agents} onSelectAgent={setSelectedAgent} selectedAgentId={selectedAgent?.config.id ?? null} />
-      ) : (
+      ) : theme === "deck" ? (
         <ControlDeck agents={agents} onSelectAgent={setSelectedAgent} selectedAgentId={selectedAgent?.config.id ?? null} />
+      ) : (
+        <GardenView agents={agents} onSelectAgent={setSelectedAgent} selectedAgentId={selectedAgent?.config.id ?? null} />
       )}
 
       {selectedAgent && (

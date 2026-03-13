@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+  <defs>
+    <radialGradient id="sky" cx="50%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#2d1f3d"/>
+      <stop offset="100%" stop-color="#1a1018"/>
+    </radialGradient>
+    <linearGradient id="ground" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2a1e28"/>
+      <stop offset="100%" stop-color="#1a1018"/>
+    </linearGradient>
+  </defs>
+  <!-- Sky -->
+  <rect width="1920" height="1080" fill="url(#sky)"/>
+  <!-- Ground plane -->
+  <rect y="540" width="1920" height="540" fill="url(#ground)"/>
+  <!-- Sand patterns (zen raking) -->
+  <g stroke="#3d2e38" stroke-width="1.5" fill="none" opacity="0.4">
+    <path d="M0 600 Q240 580 480 600 Q720 620 960 600 Q1200 580 1440 600 Q1680 620 1920 600"/>
+    <path d="M0 650 Q240 630 480 650 Q720 670 960 650 Q1200 630 1440 650 Q1680 670 1920 650"/>
+    <path d="M0 700 Q240 680 480 700 Q720 720 960 700 Q1200 680 1440 700 Q1680 720 1920 700"/>
+    <path d="M0 750 Q240 730 480 750 Q720 770 960 750 Q1200 730 1440 750 Q1680 770 1920 750"/>
+    <path d="M0 800 Q240 780 480 800 Q720 820 960 800 Q1200 780 1440 800 Q1680 820 1920 800"/>
+    <path d="M0 850 Q240 830 480 850 Q720 870 960 850 Q1200 830 1440 850 Q1680 870 1920 850"/>
+    <path d="M0 900 Q240 880 480 900 Q720 920 960 900 Q1200 880 1440 900 Q1680 920 1920 900"/>
+    <path d="M0 950 Q240 930 480 950 Q720 970 960 950 Q1200 930 1440 950 Q1680 970 1920 950"/>
+  </g>
+  <!-- Circular raking around stones -->
+  <g stroke="#3d2e38" stroke-width="1" fill="none" opacity="0.3">
+    <ellipse cx="400" cy="720" rx="80" ry="40"/>
+    <ellipse cx="400" cy="720" rx="100" ry="50"/>
+    <ellipse cx="400" cy="720" rx="120" ry="60"/>
+    <ellipse cx="1500" cy="780" rx="70" ry="35"/>
+    <ellipse cx="1500" cy="780" rx="90" ry="45"/>
+    <ellipse cx="1500" cy="780" rx="110" ry="55"/>
+  </g>
+  <!-- Zen stones -->
+  <ellipse cx="400" cy="710" rx="35" ry="22" fill="#3a3040" opacity="0.8"/>
+  <ellipse cx="420" cy="705" rx="20" ry="14" fill="#4a3e50" opacity="0.6"/>
+  <ellipse cx="1500" cy="770" rx="30" ry="18" fill="#3a3040" opacity="0.8"/>
+  <!-- Moon -->
+  <circle cx="1600" cy="150" r="60" fill="#f9e4d4" opacity="0.15"/>
+  <circle cx="1615" cy="145" r="55" fill="#2d1f3d" opacity="0.9"/>
+  <!-- Cherry tree silhouette -->
+  <g opacity="0.12" fill="#f472b6">
+    <circle cx="200" cy="200" r="80"/>
+    <circle cx="280" cy="180" r="60"/>
+    <circle cx="150" cy="250" r="50"/>
+    <circle cx="260" cy="260" r="45"/>
+    <rect x="215" y="280" width="8" height="300" fill="#3a2030"/>
+  </g>
+  <!-- Stars -->
+  <g fill="#f9e4d4" opacity="0.15">
+    <circle cx="500" cy="80" r="1.5"/>
+    <circle cx="800" cy="120" r="1"/>
+    <circle cx="1100" cy="60" r="1.5"/>
+    <circle cx="1300" cy="180" r="1"/>
+    <circle cx="700" cy="200" r="1"/>
+    <circle cx="950" cy="150" r="1.5"/>
+    <circle cx="1700" cy="100" r="1"/>
+    <circle cx="300" cy="350" r="1"/>
+    <circle cx="1400" cy="300" r="1.5"/>
+  </g>
+</svg>

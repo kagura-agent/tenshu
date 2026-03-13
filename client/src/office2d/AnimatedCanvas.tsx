@@ -11,14 +11,14 @@ interface Particle {
   vy: number;
   size: number;
   opacity: number;
-  type: "dust" | "firefly" | "energy";
+  type: "dust" | "firefly" | "energy" | "petal";
   color: string;
   life: number;
   maxLife: number;
 }
 
 interface AnimatedCanvasProps {
-  theme: "warroom" | "deck";
+  theme: "warroom" | "deck" | "garden";
   intensity: number;
   className?: string;
 }
@@ -71,6 +71,22 @@ function createEnergy(w: number, h: number): Particle {
   };
 }
 
+/** Sakura petals — drift down and sway */
+function createPetal(w: number, h: number): Particle {
+  return {
+    x: Math.random() * w,
+    y: -10,
+    vx: (Math.random() - 0.3) * 0.4,
+    vy: 0.3 + Math.random() * 0.5,
+    size: 2 + Math.random() * 2.5,
+    opacity: 0,
+    type: "petal",
+    color: Math.random() > 0.5 ? "#ffb7c5" : "#ff8fa3",
+    life: 0,
+    maxLife: 400 + Math.random() * 300,
+  };
+}
+
 function drawDot(ctx: CanvasRenderingContext2D, p: Particle) {
   ctx.globalAlpha = p.opacity;
   ctx.fillStyle = p.color;
@@ -109,7 +125,7 @@ export function AnimatedCanvas({ theme, intensity, className }: AnimatedCanvasPr
     if (theme === "warroom") {
       ctx.fillStyle = "rgba(26, 20, 16, 0.15)";
       ctx.fillRect(0, 0, w, h);
-    } else {
+    } else if (theme === "deck") {
       ctx.fillStyle = "rgba(8, 8, 26, 0.15)";
       ctx.fillRect(0, 0, w, h);
 
@@ -139,6 +155,10 @@ export function AnimatedCanvas({ theme, intensity, className }: AnimatedCanvasPr
       // Horizon glow
       ctx.fillStyle = "rgba(88, 28, 135, 0.04)";
       ctx.fillRect(0, h * 0.7, w, h * 0.3);
+    } else {
+      // Garden — soft pink overlay
+      ctx.fillStyle = "rgba(26, 16, 24, 0.1)";
+      ctx.fillRect(0, 0, w, h);
     }
 
     const particles = particlesRef.current;
@@ -152,8 +172,10 @@ export function AnimatedCanvas({ theme, intensity, className }: AnimatedCanvasPr
           if (intensity > 0.2 && Math.random() < 0.3) {
             particles.push(createFirefly(w, h));
           }
-        } else {
+        } else if (theme === "deck") {
           particles.push(createEnergy(w, h));
+        } else {
+          particles.push(createPetal(w, h));
         }
       }
 
@@ -164,12 +186,18 @@ export function AnimatedCanvas({ theme, intensity, className }: AnimatedCanvasPr
           if (particles[i].type === "dust") dustCount++;
         }
         if (dustCount < 3) particles.push(createDust(w, h));
-      } else {
+      } else if (theme === "deck") {
         let energyCount = 0;
         for (let i = 0; i < particles.length; i++) {
           if (particles[i].type === "energy") energyCount++;
         }
         if (energyCount < 3) particles.push(createEnergy(w, h));
+      } else {
+        let petalCount = 0;
+        for (let i = 0; i < particles.length; i++) {
+          if (particles[i].type === "petal") petalCount++;
+        }
+        if (petalCount < 4) particles.push(createPetal(w, h));
       }
     }
 
@@ -201,6 +229,11 @@ export function AnimatedCanvas({ theme, intensity, className }: AnimatedCanvasPr
       if (p.type === "dust") {
         // Gentle horizontal sway
         p.vx = Math.sin(p.life * 0.008) * 0.12;
+      }
+      if (p.type === "petal") {
+        // Sinusoidal drift like a real falling petal
+        p.vx = Math.sin(p.life * 0.012) * 0.4;
+        p.vy += Math.sin(p.life * 0.02) * 0.005;
       }
 
       drawDot(ctx, p);
