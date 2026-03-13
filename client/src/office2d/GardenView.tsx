@@ -88,10 +88,10 @@ export function GardenView({ agents, onSelectAgent, selectedAgentId }: GardenVie
     <div className="w-full h-full overflow-hidden relative flex flex-col" style={{ background: "#1a1018" }}>
       {/* Background image */}
       <div className="absolute inset-0 z-0" style={{
-        backgroundImage: "url(/assets/backgrounds/zen_garden_0.svg)",
+        backgroundImage: "url(/assets/backgrounds/zen_garden_2.png)",
         backgroundSize: "cover",
         backgroundPosition: "center",
-        opacity: 0.85,
+        opacity: 0.55,
       }} />
       <AnimatedCanvas theme="garden" intensity={intensity} />
 
