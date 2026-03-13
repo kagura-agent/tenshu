@@ -176,6 +176,7 @@ export function ControlDeck({ agents, onSelectAgent, selectedAgentId }: ControlD
             const role = guessRole(agent);
             const isSelected = selectedAgentId === agent.config.id;
             const isActive = status === "working" || status === "thinking";
+            const isError = status === "error";
             const agentHistory = history?.[role] || [];
 
             return (
@@ -184,7 +185,7 @@ export function ControlDeck({ agents, onSelectAgent, selectedAgentId }: ControlD
                 onClick={() => onSelectAgent(agent)}
                 className={`group focus:outline-none flex flex-col items-center transition-all duration-300 ${
                   isSelected ? "-translate-y-2" : "hover:-translate-y-1"
-                }`}
+                } ${isError ? "animate-error-shake" : ""}`}
               >
                 {/* Monitor + sprite */}
                 <div className="relative">
@@ -196,11 +197,17 @@ export function ControlDeck({ agents, onSelectAgent, selectedAgentId }: ControlD
 
                   {/* Monitor frame */}
                   <div className="w-44 rounded-lg border-2 relative overflow-hidden" style={{
-                    borderColor: isSelected ? `${agent.color}88` : "rgba(100, 100, 160, 0.25)",
-                    background: "linear-gradient(135deg, #0c0c1e 0%, #16162e 100%)",
-                    boxShadow: isSelected
-                      ? `0 0 30px ${agent.color}25, 0 8px 24px rgba(0,0,0,0.5)`
-                      : "0 8px 24px rgba(0,0,0,0.5)",
+                    borderColor: isError
+                      ? "rgba(239, 68, 68, 0.6)"
+                      : isSelected ? `${agent.color}88` : "rgba(100, 100, 160, 0.25)",
+                    background: isError
+                      ? "linear-gradient(135deg, #1e0c0c 0%, #2e1616 100%)"
+                      : "linear-gradient(135deg, #0c0c1e 0%, #16162e 100%)",
+                    boxShadow: isError
+                      ? "0 0 30px rgba(239, 68, 68, 0.2), 0 8px 24px rgba(0,0,0,0.5)"
+                      : isSelected
+                        ? `0 0 30px ${agent.color}25, 0 8px 24px rgba(0,0,0,0.5)`
+                        : "0 8px 24px rgba(0,0,0,0.5)",
                   }}>
                     {/* Status bar */}
                     <div className="flex items-center justify-between px-2 py-1.5" style={{
@@ -226,6 +233,11 @@ export function ControlDeck({ agents, onSelectAgent, selectedAgentId }: ControlD
                         </div>
                       ) : (
                         <div className="text-[9px] text-zinc-600 italic">idle</div>
+                      )}
+                      {isError && agent.state?.error && (
+                        <div className="mt-1 px-1.5 py-0.5 rounded text-[8px] text-red-300 bg-red-900/20 border border-red-500/20 truncate">
+                          {agent.state.error}
+                        </div>
                       )}
                       <MiniHistory entries={agentHistory} />
                     </div>

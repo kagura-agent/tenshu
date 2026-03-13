@@ -142,6 +142,7 @@ export function WarRoom({ agents, onSelectAgent, selectedAgentId }: WarRoomProps
             const role = guessRole(agent);
             const isSelected = selectedAgentId === agent.config.id;
             const isActive = status === "working" || status === "thinking";
+            const isError = status === "error";
             const agentHistory = history?.[role] || [];
 
             return (
@@ -150,17 +151,23 @@ export function WarRoom({ agents, onSelectAgent, selectedAgentId }: WarRoomProps
                 onClick={() => onSelectAgent(agent)}
                 className={`group focus:outline-none text-left rounded-xl p-4 transition-all duration-200 ${
                   isSelected ? "scale-[1.02]" : "hover:scale-[1.01]"
-                }`}
+                } ${isError ? "animate-error-shake" : ""}`}
                 style={{
-                  background: isSelected
-                    ? `linear-gradient(135deg, ${agent.color}15 0%, ${agent.color}08 100%)`
-                    : "linear-gradient(135deg, #2e261c 0%, #221e16 100%)",
-                  border: isSelected
-                    ? `2px solid ${agent.color}55`
-                    : "1px solid rgba(180, 140, 80, 0.15)",
-                  boxShadow: isSelected
-                    ? `0 0 24px ${agent.color}15`
-                    : "0 4px 12px rgba(0,0,0,0.3)",
+                  background: isError
+                    ? "linear-gradient(135deg, #2e1c1c 0%, #221616 100%)"
+                    : isSelected
+                      ? `linear-gradient(135deg, ${agent.color}15 0%, ${agent.color}08 100%)`
+                      : "linear-gradient(135deg, #2e261c 0%, #221e16 100%)",
+                  border: isError
+                    ? "2px solid rgba(239, 68, 68, 0.5)"
+                    : isSelected
+                      ? `2px solid ${agent.color}55`
+                      : "1px solid rgba(180, 140, 80, 0.15)",
+                  boxShadow: isError
+                    ? "0 0 24px rgba(239, 68, 68, 0.2), 0 4px 12px rgba(0,0,0,0.3)"
+                    : isSelected
+                      ? `0 0 24px ${agent.color}15`
+                      : "0 4px 12px rgba(0,0,0,0.3)",
                 }}
               >
                 {/* Header: sprite + name + status */}
@@ -197,6 +204,13 @@ export function WarRoom({ agents, onSelectAgent, selectedAgentId }: WarRoomProps
                 {agent.state?.currentTask && (
                   <div className="mt-2 text-[10px] text-zinc-400 truncate">
                     {agent.state.currentTask}
+                  </div>
+                )}
+
+                {/* Error message */}
+                {isError && agent.state?.error && (
+                  <div className="mt-1.5 px-2 py-1 rounded text-[9px] text-red-300 bg-red-900/20 border border-red-500/20 truncate">
+                    {agent.state.error}
                   </div>
                 )}
 

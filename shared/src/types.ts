@@ -20,6 +20,7 @@ export interface AgentState {
   id: string;
   status: AgentStatus;
   currentTask?: string;
+  error?: string;
   model?: string;
   sessionId?: string;
   lastActivity?: ISOTimestamp;
