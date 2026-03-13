@@ -1,8 +1,10 @@
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ThemedPageHeader } from "@/components/ThemedPageHeader";
 import { ThemedCard } from "@/components/ThemedCard";
 import { Badge } from "@/components/ui/badge";
 import { useTheme } from "@/hooks/useTheme";
+import { useDemo } from "@/hooks/useDemo";
 
 interface LogEntry {
   timestamp: string;
@@ -46,6 +48,101 @@ const ARTIFACT_COLORS: Record<string, string> = {
   qa: "text-amber-400",
 };
 
+interface CycleStage {
+  agent: string;
+  role: string;
+  durationSec: number;
+  status: "done" | "active" | "pending";
+}
+
+interface CycleTimeline {
+  cycle: number;
+  task: string;
+  stages: CycleStage[];
+  totalSec: number;
+}
+
+const STAGE_COLORS: Record<string, string> = {
+  planner: "#06b6d4",
+  researcher: "#3b82f6",
+  coder: "#8b5cf6",
+  qa: "#f59e0b",
+  comms: "#22c55e",
+};
+
+function generateDemoTimelines(): CycleTimeline[] {
+  const tasks = ["code-review", "tool-building", "ai-self-improvement-research", "improve-gameplay"];
+  const roles = ["planner", "researcher", "coder", "qa"];
+  const timelines: CycleTimeline[] = [];
+  for (let i = 0; i < 5; i++) {
+    const stages: CycleStage[] = roles.map((role, j) => ({
+      agent: role.charAt(0).toUpperCase() + role.slice(1),
+      role,
+      durationSec: 30 + Math.floor(Math.random() * 200),
+      status: i === 0 && j === roles.length - 1 ? "active" as const : "done" as const,
+    }));
+    timelines.push({
+      cycle: 42 - i,
+      task: tasks[i % tasks.length],
+      stages,
+      totalSec: stages.reduce((s, st) => s + st.durationSec, 0),
+    });
+  }
+  return timelines;
+}
+
+function CycleWaterfall({ timelines, accent }: { timelines: CycleTimeline[]; accent: string }) {
+  if (timelines.length === 0) return null;
+  const maxTotal = Math.max(...timelines.map((t) => t.totalSec));
+
+  return (
+    <ThemedCard>
+      <p className="text-xs text-zinc-500 uppercase tracking-wide mb-3">Cycle Timeline</p>
+      <div className="flex items-center gap-3 mb-3 text-[10px] text-zinc-500">
+        {Object.entries(STAGE_COLORS).map(([role, color]) => (
+          <span key={role} className="flex items-center gap-1">
+            <span className="inline-block w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: color }} />
+            {role}
+          </span>
+        ))}
+      </div>
+      <div className="space-y-2">
+        {timelines.map((tl) => (
+          <div key={tl.cycle} className="flex items-center gap-2">
+            <span className="text-[10px] text-zinc-500 font-mono w-6">#{tl.cycle}</span>
+            <div className="flex-1 flex h-5 rounded overflow-hidden" style={{ background: "rgba(255,255,255,0.03)" }}>
+              {tl.stages.map((stage, j) => {
+                const widthPct = maxTotal > 0 ? (stage.durationSec / maxTotal) * 100 : 25;
+                return (
+                  <div
+                    key={j}
+                    className="h-full relative group"
+                    style={{
+                      width: `${widthPct}%`,
+                      backgroundColor: stage.status === "active"
+                        ? `${STAGE_COLORS[stage.role]}cc`
+                        : `${STAGE_COLORS[stage.role]}88`,
+                      borderRight: j < tl.stages.length - 1 ? "1px solid rgba(0,0,0,0.3)" : undefined,
+                    }}
+                    title={`${stage.agent} (${stage.role}) — ${Math.floor(stage.durationSec / 60)}m ${stage.durationSec % 60}s`}
+                  >
+                    {stage.status === "active" && (
+                      <div className="absolute inset-0 animate-pulse" style={{ backgroundColor: `${accent}33` }} />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            <span className="text-[10px] text-zinc-600 font-mono w-10 text-right">
+              {Math.floor(tl.totalSec / 60)}m{tl.totalSec % 60}s
+            </span>
+          </div>
+        ))}
+      </div>
+    </ThemedCard>
+  );
+}
+
 function timeAgo(ts: string): string {
   const diff = Date.now() - new Date(ts).getTime();
   const mins = Math.floor(diff / 60000);
@@ -59,6 +156,8 @@ function timeAgo(ts: string): string {
 export function Activity() {
   const { theme } = useTheme();
   const accent = theme === "warroom" ? "#f59e0b" : theme === "deck" ? "#06b6d4" : "#f472b6";
+  const { isDemo } = useDemo();
+  const demoTimelines = useMemo(() => isDemo ? generateDemoTimelines() : [], [isDemo]);
 
   const { data: current } = useQuery<CurrentCycle>({
     queryKey: ["activity-current"],
@@ -117,6 +216,11 @@ export function Activity() {
             ))}
           </div>
         </ThemedCard>
+      )}
+
+      {/* Cycle Timeline Waterfall */}
+      {(isDemo || current?.running) && (
+        <CycleWaterfall timelines={demoTimelines} accent={accent} />
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

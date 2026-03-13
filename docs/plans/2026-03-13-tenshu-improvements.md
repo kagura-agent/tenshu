@@ -81,13 +81,14 @@
 - [x] Theme-colored badges for unlocked achievements
 - [x] Dimmed badges for locked achievements with hover descriptions
 
-## Phase 5 — Session Timeline/Waterfall (Medium Effort, High Impact)
+## Phase 5 — Session Timeline/Waterfall (DONE)
 
 ### 5.1 Timeline Component
-- [ ] Horizontal bar chart showing cycle stages
-- [ ] Planner → Researcher → Coder → QA as sequential bars
-- [ ] Color-coded by agent, width = duration
-- [ ] Show on Activity page
+- [x] Horizontal bar chart showing cycle stages (5 recent cycles)
+- [x] Planner → Researcher → Coder → QA as sequential bars
+- [x] Color-coded by role with legend, width proportional to duration
+- [x] Shown on Activity page between current cycle and log/artifacts
+- [x] Total duration labels, hover tooltips with agent name + duration
 
 ## Phase 6 — Agent Interaction Map (Medium-High Effort)
 
