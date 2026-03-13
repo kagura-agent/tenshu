@@ -3,6 +3,7 @@ import type { Agent } from "@tenshu/shared";
 import { STATUS_COLORS } from "@tenshu/shared";
 import { AgentSprite } from "./sprites";
 import { AnimatedCanvas } from "./AnimatedCanvas";
+import { Sparkline } from "@/components/Sparkline";
 import { useAgentHistory, useCurrentCycle } from "@/hooks/useAgentHistory";
 import type { CycleEntry } from "@/hooks/useAgentHistory";
 
@@ -54,8 +55,13 @@ function ScoreBar({ score }: { score: number }) {
 
 function MiniHistory({ entries }: { entries: CycleEntry[] }) {
   if (!entries.length) return null;
+  const scores = entries.map((e) => e.score);
   return (
     <div className="mt-2 space-y-1">
+      <div className="flex items-center gap-2">
+        <Sparkline values={scores} width={56} height={14} />
+        <span className="text-[8px] text-zinc-500">{entries.length} cycles</span>
+      </div>
       {entries.slice(0, 3).map((e) => (
         <div key={e.cycle} className="flex items-center gap-2 text-[9px]">
           <span className="text-zinc-600 w-8 shrink-0">#{e.cycle}</span>
