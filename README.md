@@ -50,11 +50,12 @@ Live GPU/CPU/RAM/disk metrics, loaded Ollama models, and system uptime.
 - **Error State UI** — Red glow borders, shake animation, and error messages when agents enter error status
 - **Anime Sound Effects** — Web Audio synthesized sounds per theme: taiko drums (War Room), synth beeps (Control Deck), wind chimes (Zen Garden) — plays on agent status changes with mute toggle
 - **Avatar Picker** — Click agent portraits to choose from 24 AI-generated character images or upload custom avatars
-- **Agent Dashboard** — Live status, current tasks, model info for all agents with real-time WebSocket updates
+- **Agent Dashboard** — Live status, current tasks, model info, power levels, XP bars, and level badges (Genin→Hokage) for all agents with real-time WebSocket updates
+- **Achievement System** — 10 unlockable achievements tracked from results data (First Blood, Perfect Score, Hat Trick, On Fire, etc.) displayed on Dashboard
 - **Session Viewer** — Active Claude Code sessions with token counts, model, duration, and cost tracking
 - **Cron Manager** — View, toggle, and manually trigger scheduled tasks
-- **Results Log** — Experiment results with score trends, keep/discard ratcheting, and success rate stats
-- **Activity Feed** — Real-time orchestrator output, agent logs, and research artifact previews
+- **Results Log** — Experiment results with SVG score trend line chart, ratchet floor visualization, per-agent filtering, and task type performance breakdown
+- **Activity Feed** — Real-time orchestrator output, cycle timeline waterfall chart, agent logs, and research artifact previews
 - **Demo Mode** — Simulated agents with cycling states, scores, and terminal output — auto-activates when OpenClaw isn't configured, or via `?demo=true` URL param
 - **System Monitor** — GPU temperature, utilization, VRAM, CPU, RAM, disk usage, and loaded Ollama models
 - **Docker Support** — Single-command deployment with `docker compose up`

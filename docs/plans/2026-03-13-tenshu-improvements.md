@@ -1,6 +1,6 @@
 # Tenshu Improvements Plan — 2026-03-13
 
-## Status: IN PROGRESS — Phase 1 COMPLETE
+## Status: Phases 1-5 COMPLETE — Phases 6-8 deferred (need server-side work)
 
 ## Phase 1 — Theme-Specific Styling on All Pages (DONE)
 
