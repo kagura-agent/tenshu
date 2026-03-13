@@ -43,7 +43,7 @@ const TYPE_COLORS: Record<string, string> = {
 // Demo data
 function generateDemoArtifacts(): KnowledgeArtifact[] {
   const types: KnowledgeArtifact["type"][] = ["research", "coder", "qa"];
-  const tasks = ["ai-self-improvement", "tool-building", "code-review", "frontier-scan", "capability-assessment"];
+  const tasks = ["ai-self-improvement-research", "tool-building", "capability-assessment", "frontier-scan", "repo-contribution", "resource-acquisition"];
   const agents: Record<string, string> = { research: "Senku", coder: "Bulma", qa: "Vegeta" };
   const previews = [
     "This research explores the frontier of recursive self-improvement patterns in multi-agent architectures...",

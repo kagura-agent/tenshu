@@ -6,27 +6,27 @@ import type { CycleEntry, CurrentCycle } from "./useAgentHistory";
 
 const DEMO_AGENTS: Agent[] = [
   {
-    config: { id: "planner-erwin", name: "Erwin", workspace: "/tmp/demo/erwin", model: { primary: "claude-sonnet-4-20250514" } },
+    config: { id: "planner-erwin", name: "Erwin", workspace: "/tmp/demo/erwin", model: { primary: "qwen3.5:27b" } },
     state: { id: "planner-erwin", status: "idle" },
     color: "#f59e0b", emoji: "🧠",
   },
   {
-    config: { id: "researcher-senku", name: "Senku", workspace: "/tmp/demo/senku", model: { primary: "qwen3.5:9b" } },
+    config: { id: "researcher-senku", name: "Senku", workspace: "/tmp/demo/senku", model: { primary: "qwen3.5:27b" } },
     state: { id: "researcher-senku", status: "idle" },
     color: "#22c55e", emoji: "🔬",
   },
   {
-    config: { id: "coder-bulma", name: "Bulma", workspace: "/tmp/demo/bulma", model: { primary: "qwen3-coder:30b" } },
+    config: { id: "coder-bulma", name: "Bulma", workspace: "/tmp/demo/bulma", model: { primary: "qwen3.5:27b" } },
     state: { id: "coder-bulma", status: "idle" },
     color: "#8b5cf6", emoji: "💻",
   },
   {
-    config: { id: "qa-vegeta", name: "Vegeta", workspace: "/tmp/demo/vegeta", model: { primary: "qwen2.5:32b" } },
+    config: { id: "qa-vegeta", name: "Vegeta", workspace: "/tmp/demo/vegeta", model: { primary: "qwen3.5:27b" } },
     state: { id: "qa-vegeta", status: "idle" },
     color: "#ef4444", emoji: "🔥",
   },
   {
-    config: { id: "comms-jet", name: "Jet", workspace: "/tmp/demo/jet", model: { primary: "qwen3.5:9b" } },
+    config: { id: "comms-jet", name: "Jet", workspace: "/tmp/demo/jet", model: { primary: "qwen3.5:27b" } },
     state: { id: "comms-jet", status: "idle" },
     color: "#06b6d4", emoji: "📡",
   },
@@ -46,9 +46,8 @@ const DEMO_TASKS = [
 ];
 
 const DEMO_CYCLE_TASKS = [
-  "code-review", "ai-self-improvement-research", "write-test",
-  "game-design-research", "improve-gameplay", "backend-api",
-  "performance-optimization", "tool-building",
+  "ai-self-improvement-research", "tool-building", "capability-assessment",
+  "frontier-scan", "repo-contribution", "resource-acquisition",
 ];
 
 const STATUS_SEQUENCE: AgentStatus[] = ["idle", "thinking", "working", "working", "working", "idle"];
