@@ -205,7 +205,7 @@ export function WarRoom({ agents, onSelectAgent, selectedAgentId }: WarRoomProps
       {/* Terminal feed */}
       {current?.recentLines && current.recentLines.length > 0 && (
         <div className="relative z-10 px-6 pb-1">
-          <div className="w-52 font-mono text-[10px] leading-relaxed bg-black/30 rounded-lg border border-amber-700/15 p-3">
+          <div className="w-[28rem] font-mono text-[10px] leading-relaxed bg-black/30 rounded-lg border border-amber-700/15 p-3 overflow-hidden">
             {current.recentLines.slice(-4).map((line, i, arr) => {
               const isNewest = i === arr.length - 1;
               const color = /error/i.test(line)
@@ -216,7 +216,7 @@ export function WarRoom({ agents, onSelectAgent, selectedAgentId }: WarRoomProps
                     ? "text-amber-400"
                     : "text-amber-400/40";
               return (
-                <div key={`${i}-${line}`} className={color}>
+                <div key={`${i}-${line}`} className={`${color} truncate`}>
                   {line}
                 </div>
               );

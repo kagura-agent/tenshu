@@ -45,12 +45,12 @@ function TerminalFeed({ lines }: { lines: string[] }) {
   }
 
   return (
-    <div className="w-56 font-mono text-[10px] leading-relaxed bg-black/40 rounded-lg border border-emerald-500/10 p-3 shrink-0">
+    <div className="w-[28rem] font-mono text-[10px] leading-relaxed bg-black/40 rounded-lg border border-emerald-500/10 p-3 shrink-0 overflow-hidden">
       {display.length === 0 && (
         <div className="text-emerald-400/40">{">> awaiting data..."}</div>
       )}
       {display.map((line, i) => (
-        <div key={`${i}-${line}`} className={lineColor(line, i === display.length - 1)}>
+        <div key={`${i}-${line}`} className={`${lineColor(line, i === display.length - 1)} truncate`}>
           {line}
         </div>
       ))}
