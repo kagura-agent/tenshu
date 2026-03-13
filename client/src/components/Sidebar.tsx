@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { LayoutDashboard, Building2, Monitor, Clock, FlaskConical, Cpu } from "lucide-react";
+import { LayoutDashboard, Building2, Monitor, Clock, FlaskConical, Cpu, Activity } from "lucide-react";
 
 const navItems = [
   { to: "/", icon: LayoutDashboard, label: "Dashboard" },
@@ -7,6 +7,7 @@ const navItems = [
   { to: "/sessions", icon: Monitor, label: "Sessions" },
   { to: "/cron", icon: Clock, label: "Cron Jobs" },
   { to: "/results", icon: FlaskConical, label: "Results" },
+  { to: "/activity", icon: Activity, label: "Activity" },
   { to: "/system", icon: Cpu, label: "System" },
 ];
 
