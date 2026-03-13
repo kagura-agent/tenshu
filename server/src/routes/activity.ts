@@ -164,7 +164,7 @@ activity.get("/current", async (c) => {
   }
 });
 
-// Per-agent history — combines results.tsv + team-log for a specific agent or all agents
+// Per-agent history — each agent shows THEIR specific work, not duplicated cycle data
 activity.get("/agent-history", async (c) => {
   try {
     const limit = Number(c.req.query("limit") || "10");
@@ -172,7 +172,7 @@ activity.get("/agent-history", async (c) => {
       process.env.RESULTS_TSV ||
       `${process.env.HOME}/clawd/team/knowledge/results.tsv`;
 
-    // Read results.tsv for cycle history
+    // Read results.tsv
     const results: Array<{
       timestamp: string;
       cycle: number;
@@ -201,93 +201,165 @@ activity.get("/agent-history", async (c) => {
       }
     }
 
-    // Read team-log for detailed task descriptions
-    const logEntries: Array<{
-      timestamp: string;
-      type: string;
-      agent: string;
-      task: string;
-      result_length: number;
-      score: number;
-      verdict: string;
-    }> = [];
-
-    if (existsSync(TEAM_LOG)) {
-      const raw = await readFile(TEAM_LOG, "utf-8");
-      const lines = raw.trim().split("\n").filter(Boolean);
-      for (const line of lines.slice(-200)) {
+    // Scan artifacts for richer per-agent descriptions
+    const artifactPreviews: Record<string, string> = {};
+    if (existsSync(ARTIFACTS_DIR)) {
+      const files = await readdir(ARTIFACTS_DIR);
+      const mdFiles = files.filter((f) => f.endsWith(".md")).sort().reverse();
+      // Read previews from last ~40 artifacts
+      for (const file of mdFiles.slice(0, 40)) {
         try {
-          logEntries.push(JSON.parse(line));
+          const content = await readFile(join(ARTIFACTS_DIR, file), "utf-8");
+          const lines = content.split("\n");
+          // Extract first substantive line as preview
+          let preview = "";
+          for (const line of lines.slice(3, 20)) {
+            const trimmed = line.trim();
+            if (
+              trimmed &&
+              !trimmed.startsWith("#") &&
+              !trimmed.startsWith("---") &&
+              !trimmed.startsWith("Cycle:") &&
+              !trimmed.startsWith("Length:") &&
+              !trimmed.startsWith("{") &&
+              trimmed.length > 20
+            ) {
+              preview = trimmed.slice(0, 200);
+              break;
+            }
+          }
+          // Key by timestamp extracted from filename
+          const tsMatch = file.match(/(\d{8}-\d{6})\.md$/);
+          if (tsMatch) {
+            const prefix = file.startsWith("research-") ? "researcher" : "coder";
+            artifactPreviews[`${prefix}-${tsMatch[1]}`] = preview;
+          }
         } catch {
-          // skip malformed lines
+          // skip unreadable
         }
       }
     }
 
-    // Group by agent — deduplicate cycles, keep coder entries (they have scores)
-    const agentMap: Record<
-      string,
-      Array<{
-        cycle: number;
-        task: string;
-        score: number;
-        status: string;
-        description: string;
-        timestamp: string;
-        detailedTask: string;
-        verdict: string;
-        resultLength: number;
-      }>
-    > = {};
+    type HistoryEntry = {
+      cycle: number;
+      task: string;
+      score: number;
+      status: string;
+      description: string;
+      timestamp: string;
+      detailedTask: string;
+      verdict: string;
+      resultLength: number;
+    };
 
-    // Build from results.tsv (coder entries only — they have the real scores)
-    const coderResults = results.filter((r) => r.agent === "coder");
-    const seenCycles = new Set<number>();
+    const agentMap: Record<string, HistoryEntry[]> = {
+      researcher: [],
+      coder: [],
+      qa: [],
+      planner: [],
+    };
 
-    for (const r of coderResults.reverse()) {
-      if (seenCycles.has(r.cycle)) continue;
-      seenCycles.add(r.cycle);
-
-      // Find matching team-log entries for this cycle's timestamp
-      const cycleLog = logEntries.filter(
-        (l) =>
-          l.timestamp.slice(0, 16) === r.timestamp.slice(0, 16) ||
-          (l.score === r.score && l.score > 0)
-      );
-
-      // Get detailed task from the research or coding log entry
-      const detailedEntry =
-        cycleLog.find((l) => l.type === "research") ||
-        cycleLog.find((l) => l.type === "coding");
-
-      const entry = {
-        cycle: r.cycle,
-        task: r.task,
-        score: r.score,
-        status: r.status,
-        description: r.description,
-        timestamp: r.timestamp,
-        detailedTask: detailedEntry?.task?.slice(0, 300) || "",
-        verdict:
-          cycleLog.find((l) => l.type === "qa_review")?.verdict || "",
-        resultLength: detailedEntry?.result_length || 0,
-      };
-
-      // Add to all relevant agents
-      for (const agentRole of [
-        "researcher",
-        "coder",
-        "qa",
-        "planner",
-      ]) {
-        if (!agentMap[agentRole]) agentMap[agentRole] = [];
-        agentMap[agentRole].push(entry);
-      }
+    // Group results by cycle
+    const cycleMap = new Map<number, typeof results>();
+    for (const r of results) {
+      if (!cycleMap.has(r.cycle)) cycleMap.set(r.cycle, []);
+      cycleMap.get(r.cycle)!.push(r);
     }
 
-    // Trim to limit per agent
-    for (const key of Object.keys(agentMap)) {
-      agentMap[key] = agentMap[key].slice(0, limit);
+    // Process cycles in reverse (newest first)
+    const cycles = [...cycleMap.keys()].sort((a, b) => b - a);
+
+    for (const cycleNum of cycles) {
+      const entries = cycleMap.get(cycleNum)!;
+      const coderEntry = entries.filter((e) => e.agent === "coder");
+      const researcherEntry = entries.find((e) => e.agent === "researcher");
+      // Use the final coder entry (after retries) for the cycle score
+      const finalCoder = coderEntry[coderEntry.length - 1];
+      const score = finalCoder?.score ?? researcherEntry?.score ?? 0;
+      const cycleStatus = finalCoder?.status ?? researcherEntry?.status ?? "";
+      const ts = finalCoder?.timestamp ?? researcherEntry?.timestamp ?? "";
+
+      // Try to find artifact preview by matching timestamp
+      const tsForKey = ts.replace(/[-T:]/g, "").slice(0, 15).replace(/^(\d{8})(\d{6}).*/, "$1-$2");
+
+      // --- Researcher: what Senku researched ---
+      if (researcherEntry && agentMap.researcher.length < limit) {
+        const artifactKey = `researcher-${tsForKey}`;
+        agentMap.researcher.push({
+          cycle: cycleNum,
+          task: researcherEntry.task,
+          score,
+          status: cycleStatus,
+          description: `Researched: ${researcherEntry.task.replace(/-/g, " ")}`,
+          timestamp: ts,
+          detailedTask: artifactPreviews[artifactKey] || `Research phase for ${researcherEntry.task.replace(/-/g, " ")}`,
+          verdict: "",
+          resultLength: 0,
+        });
+      }
+
+      // --- Coder: what Bulma built (include retries) ---
+      if (finalCoder && agentMap.coder.length < limit) {
+        const retryCount = coderEntry.length - 1;
+        const artifactKey = `coder-${tsForKey}`;
+        agentMap.coder.push({
+          cycle: cycleNum,
+          task: finalCoder.task,
+          score,
+          status: cycleStatus,
+          description: retryCount > 0
+            ? `Built: ${finalCoder.task.replace(/-/g, " ")} (${retryCount} retry)`
+            : `Built: ${finalCoder.task.replace(/-/g, " ")}`,
+          timestamp: ts,
+          detailedTask: artifactPreviews[artifactKey] || finalCoder.description,
+          verdict: "",
+          resultLength: 0,
+        });
+      }
+
+      // --- QA: what Vegeta reviewed (extracted from coder descriptions) ---
+      if (coderEntry.length > 0 && agentMap.qa.length < limit) {
+        const qaVerdict = finalCoder?.description || "";
+        const rejected = coderEntry.filter((e) => e.description.includes("rejected"));
+        const approved = coderEntry.find((e) => e.description.includes("approved"));
+        let qaDesc: string;
+        if (rejected.length > 0 && approved) {
+          qaDesc = `Rejected ${rejected.length}x, then approved: ${finalCoder.task.replace(/-/g, " ")}`;
+        } else if (rejected.length > 0) {
+          qaDesc = `Rejected (${rejected.length}x): ${finalCoder.task.replace(/-/g, " ")}`;
+        } else if (approved) {
+          qaDesc = `Approved: ${finalCoder.task.replace(/-/g, " ")}`;
+        } else {
+          qaDesc = `Reviewed: ${finalCoder.task.replace(/-/g, " ")}`;
+        }
+        agentMap.qa.push({
+          cycle: cycleNum,
+          task: finalCoder?.task ?? "",
+          score,
+          status: cycleStatus,
+          description: qaDesc,
+          timestamp: ts,
+          detailedTask: qaVerdict,
+          verdict: qaVerdict.includes("approved") ? "PASS" : qaVerdict.includes("rejected") ? "FAIL" : "",
+          resultLength: 0,
+        });
+      }
+
+      // --- Planner: Erwin's coordination (synthesized from cycle data) ---
+      if (agentMap.planner.length < limit) {
+        const agentCount = new Set(entries.map((e) => e.agent)).size;
+        agentMap.planner.push({
+          cycle: cycleNum,
+          task: finalCoder?.task ?? researcherEntry?.task ?? "",
+          score,
+          status: cycleStatus,
+          description: `Coordinated: ${(finalCoder?.task ?? "").replace(/-/g, " ")} (${agentCount} agents)`,
+          timestamp: ts,
+          detailedTask: `Cycle #${cycleNum} — ${cycleStatus === "keep" ? "kept" : "discarded"}, score ${score}`,
+          verdict: "",
+          resultLength: 0,
+        });
+      }
     }
 
     return c.json(agentMap);

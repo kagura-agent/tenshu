@@ -59,7 +59,9 @@ function MiniHistory({ entries }: { entries: CycleEntry[] }) {
       {entries.slice(0, 3).map((e) => (
         <div key={e.cycle} className="flex items-center gap-2 text-[9px]">
           <span className="text-zinc-600 w-8 shrink-0">#{e.cycle}</span>
-          <span className="text-amber-200/60 truncate flex-1">{e.task}</span>
+          <span className="text-amber-200/60 truncate flex-1" title={e.detailedTask || e.description}>
+            {e.description || e.task}
+          </span>
           <ScoreBar score={e.score} />
           <span
             className={`w-3 text-center ${e.status === "keep" ? "text-emerald-400" : "text-red-400"}`}
@@ -85,7 +87,14 @@ export function WarRoom({ agents, onSelectAgent, selectedAgentId }: WarRoomProps
 
   return (
     <div className="w-full h-full overflow-hidden relative flex flex-col" style={{ background: "#1a1410" }}>
-      {/* Animated background */}
+      {/* Background image */}
+      <div className="absolute inset-0 z-0" style={{
+        backgroundImage: "url(/assets/backgrounds/warroom_0.png)",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        opacity: 0.35,
+      }} />
+      {/* Animated particles on top of background */}
       <AnimatedCanvas theme="warroom" intensity={intensity} />
 
       {/* Shoji screen top */}

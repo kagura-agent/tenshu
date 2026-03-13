@@ -92,7 +92,9 @@ function MiniHistory({ entries }: { entries: CycleEntry[] }) {
       {entries.slice(0, 3).map((e) => (
         <div key={e.cycle} className="flex items-center gap-1.5 text-[8px]">
           <span className="text-zinc-600 shrink-0">#{e.cycle}</span>
-          <span className="text-zinc-400 truncate flex-1">{e.task}</span>
+          <span className="text-zinc-400 truncate flex-1" title={e.detailedTask || e.description}>
+            {e.description || e.task}
+          </span>
           <ScoreBar score={e.score} />
         </div>
       ))}
@@ -113,8 +115,15 @@ export function ControlDeck({ agents, onSelectAgent, selectedAgentId }: ControlD
 
   return (
     <div className="w-full h-full overflow-hidden relative flex flex-col" style={{
-      background: "linear-gradient(180deg, #08081a 0%, #0d0d22 40%, #14102a 100%)",
+      background: "#08081a",
     }}>
+      {/* Background image */}
+      <div className="absolute inset-0 z-0" style={{
+        backgroundImage: "url(/assets/backgrounds/command_deck_0.png)",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        opacity: 0.4,
+      }} />
       <AnimatedCanvas theme="deck" intensity={intensity} />
 
       {/* CRT scan lines */}
@@ -232,12 +241,12 @@ export function ControlDeck({ agents, onSelectAgent, selectedAgentId }: ControlD
                     <div className="w-10 h-1.5 rounded-full bg-zinc-700 border border-zinc-600/20" />
                   </div>
 
-                  {/* Character sprite */}
-                  <div className="absolute -bottom-1 -left-6">
+                  {/* Character portrait */}
+                  <div className="absolute -bottom-2 -left-8">
                     <AgentSprite
                       agentId={agent.config.id}
                       agentName={agent.config.name}
-                      size={56}
+                      size={72}
                       glow={isActive ? statusColor : undefined}
                       isActive={isActive}
                     />
