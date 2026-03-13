@@ -4,10 +4,21 @@ import { ActivityFeed } from "@/components/ActivityFeed";
 import { ThemedPageHeader } from "@/components/ThemedPageHeader";
 import { ThemedCard } from "@/components/ThemedCard";
 import { useTheme } from "@/hooks/useTheme";
+import { useAgentHistory } from "@/hooks/useAgentHistory";
+import { usePowerLevel } from "@/hooks/usePowerLevel";
+
+function AgentCardWithPower({ agent, history }: { agent: Parameters<typeof AgentCard>[0]["agent"]; history: Record<string, import("@/hooks/useAgentHistory").CycleEntry[]> }) {
+  // Extract role from agent ID (e.g. "coder-bulma" -> "coder")
+  const role = agent.config.id.split("-")[0];
+  const entries = history[role];
+  const power = usePowerLevel(entries);
+  return <AgentCard agent={agent} power={power} />;
+}
 
 export function Dashboard() {
   const { agents, loading, connected } = useAgents();
   const { theme } = useTheme();
+  const { data: history } = useAgentHistory(50);
 
   const activeCount = agents.filter(
     (a) => a.state.status === "working" || a.state.status === "thinking"
@@ -69,7 +80,7 @@ export function Dashboard() {
       <div className="grid grid-cols-3 gap-6" style={{ minHeight: "400px" }}>
         <div className="col-span-2 space-y-3">
           {agents.map((agent) => (
-            <AgentCard key={agent.config.id} agent={agent} />
+            <AgentCardWithPower key={agent.config.id} agent={agent} history={history ?? {}} />
           ))}
           {agents.length === 0 && (
             <p className="text-zinc-500">No agents configured in openclaw.json</p>

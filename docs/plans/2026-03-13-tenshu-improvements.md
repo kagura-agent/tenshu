@@ -31,19 +31,19 @@
 - [x] Add low-intensity AnimatedCanvas behind ThemedMain content area
 - [x] Much lower particle count than Command views (ambient only)
 
-## Phase 2 — Agent Power Levels & XP (Quick Win, High Wow)
+## Phase 2 — Agent Power Levels & XP (DONE)
 
 ### 2.1 Power Level Calculation
-- [ ] Create `usePowerLevel` hook
-- [ ] Composite score from: avg quality score, tasks completed, uptime percentage
-- [ ] Display as "Power Level: XXXX" on agent cards
-- [ ] Scouter-style visual display
+- [x] Create `usePowerLevel` hook
+- [x] Composite score from: avg quality score, tasks completed, success rate
+- [x] Display as "PL:XXXX" on agent cards
+- [x] XP bar with level-colored fill
 
 ### 2.2 XP Bar & Level System
-- [ ] Each agent gets XP from completed tasks (score * 100)
-- [ ] Levels: Genin (0), Chunin (500), Jonin (2000), Kage (5000), Hokage (10000)
-- [ ] Visual XP progress bar on agent cards
-- [ ] Level badge next to agent name
+- [x] Each agent gets XP from completed tasks (score * 100)
+- [x] Levels: Genin (0), Chunin (500), Jonin (2000), Kage (5000), Hokage (10000)
+- [x] Visual XP progress bar on agent cards
+- [x] Level badge next to agent name (color-coded per tier)
 
 ## Phase 3 — Enhanced Results Page (Medium Effort, High Impact)
 
