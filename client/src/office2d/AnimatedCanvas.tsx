@@ -1,5 +1,7 @@
 import { useRef, useEffect, useCallback } from "react";
 
+const MAX_PARTICLES = 40;
+
 interface Particle {
   x: number;
   y: number;
@@ -17,12 +19,11 @@ interface Particle {
 
 interface AnimatedCanvasProps {
   theme: "warroom" | "deck";
-  /** 0-1, how active the agents are (drives visual intensity) */
   intensity: number;
   className?: string;
 }
 
-function createSakura(w: number, _h: number): Particle {
+function createSakura(w: number): Particle {
   return {
     x: Math.random() * w,
     y: -10,
@@ -96,85 +97,33 @@ function drawSakura(ctx: CanvasRenderingContext2D, p: Particle) {
   ctx.rotate(p.rotation);
   ctx.globalAlpha = p.opacity;
   ctx.fillStyle = p.color;
-
-  // Petal shape
   ctx.beginPath();
   ctx.ellipse(0, 0, p.size * 0.6, p.size, 0, 0, Math.PI * 2);
   ctx.fill();
-  // Inner detail
-  ctx.fillStyle = "rgba(255,255,255,0.3)";
-  ctx.beginPath();
-  ctx.ellipse(0, -p.size * 0.2, p.size * 0.2, p.size * 0.4, 0, 0, Math.PI * 2);
-  ctx.fill();
-
   ctx.restore();
 }
 
-function drawFirefly(ctx: CanvasRenderingContext2D, p: Particle) {
-  ctx.save();
-  ctx.globalAlpha = p.opacity;
-
-  // Outer glow
-  const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 4);
-  gradient.addColorStop(0, `${p.color}88`);
-  gradient.addColorStop(0.5, `${p.color}22`);
-  gradient.addColorStop(1, "transparent");
-  ctx.fillStyle = gradient;
-  ctx.beginPath();
-  ctx.arc(p.x, p.y, p.size * 4, 0, Math.PI * 2);
-  ctx.fill();
-
-  // Core
+// Simple glow dot — no radial gradient per frame
+function drawGlowDot(ctx: CanvasRenderingContext2D, p: Particle) {
+  ctx.globalAlpha = p.opacity * 0.3;
   ctx.fillStyle = p.color;
-  ctx.beginPath();
-  ctx.arc(p.x, p.y, p.size * 0.5, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.restore();
-}
-
-function drawEnergy(ctx: CanvasRenderingContext2D, p: Particle) {
-  ctx.save();
-  ctx.globalAlpha = p.opacity;
-
-  // Trail
-  const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 3);
-  gradient.addColorStop(0, p.color);
-  gradient.addColorStop(1, "transparent");
-  ctx.fillStyle = gradient;
   ctx.beginPath();
   ctx.arc(p.x, p.y, p.size * 3, 0, Math.PI * 2);
   ctx.fill();
 
-  // Core dot
-  ctx.fillStyle = "#ffffff";
-  ctx.beginPath();
-  ctx.arc(p.x, p.y, p.size * 0.3, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.restore();
-}
-
-function drawEmber(ctx: CanvasRenderingContext2D, p: Particle) {
-  ctx.save();
   ctx.globalAlpha = p.opacity;
-
-  const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 2);
-  gradient.addColorStop(0, p.color);
-  gradient.addColorStop(0.5, `${p.color}44`);
-  gradient.addColorStop(1, "transparent");
-  ctx.fillStyle = gradient;
+  ctx.fillStyle = p.type === "energy" ? "#ffffff" : p.color;
   ctx.beginPath();
-  ctx.arc(p.x, p.y, p.size * 2, 0, Math.PI * 2);
+  ctx.arc(p.x, p.y, p.size * 0.5, 0, Math.PI * 2);
   ctx.fill();
-
-  ctx.restore();
 }
 
 export function AnimatedCanvas({ theme, intensity, className }: AnimatedCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const particlesRef = useRef<Particle[]>([]);
   const frameRef = useRef(0);
+  const gridCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const lastSizeRef = useRef({ w: 0, h: 0 });
 
   const animate = useCallback(() => {
     const canvas = canvasRef.current;
@@ -182,79 +131,84 @@ export function AnimatedCanvas({ theme, intensity, className }: AnimatedCanvasPr
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const w = canvas.width;
-    const h = canvas.height;
+    // Use CSS pixel dimensions (already scaled by devicePixelRatio transform)
+    const dpr = window.devicePixelRatio || 1;
+    const w = canvas.width / dpr;
+    const h = canvas.height / dpr;
 
-    // Clear canvas — transparent so background image shows through
     ctx.clearRect(0, 0, w, h);
 
     if (theme === "warroom") {
-      // Light translucent overlay for depth
       ctx.fillStyle = "rgba(26, 20, 16, 0.15)";
       ctx.fillRect(0, 0, w, h);
     } else {
-      // Light translucent overlay + neon grid for cyberpunk feel
       ctx.fillStyle = "rgba(8, 8, 26, 0.15)";
       ctx.fillRect(0, 0, w, h);
 
-      // Subtle neon grid
-      ctx.strokeStyle = "rgba(6, 182, 212, 0.04)";
-      ctx.lineWidth = 1;
-      for (let x = 0; x < w; x += 60) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, h);
-        ctx.stroke();
+      // Draw grid from cached offscreen canvas
+      if (!gridCanvasRef.current || lastSizeRef.current.w !== w || lastSizeRef.current.h !== h) {
+        const offscreen = document.createElement("canvas");
+        offscreen.width = w;
+        offscreen.height = h;
+        const offCtx = offscreen.getContext("2d")!;
+        offCtx.strokeStyle = "rgba(6, 182, 212, 0.04)";
+        offCtx.lineWidth = 1;
+        offCtx.beginPath();
+        for (let x = 0; x < w; x += 60) {
+          offCtx.moveTo(x, 0);
+          offCtx.lineTo(x, h);
+        }
+        for (let y = 0; y < h; y += 60) {
+          offCtx.moveTo(0, y);
+          offCtx.lineTo(w, y);
+        }
+        offCtx.stroke();
+        gridCanvasRef.current = offscreen;
+        lastSizeRef.current = { w, h };
       }
-      for (let y = 0; y < h; y += 60) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(w, y);
-        ctx.stroke();
-      }
+      ctx.drawImage(gridCanvasRef.current, 0, 0);
 
-      // Horizon glow
-      const horizonGrad = ctx.createLinearGradient(0, h * 0.7, 0, h);
-      horizonGrad.addColorStop(0, "transparent");
-      horizonGrad.addColorStop(1, "rgba(88, 28, 135, 0.08)");
-      ctx.fillStyle = horizonGrad;
+      // Horizon glow — simple fill, no gradient per frame
+      ctx.fillStyle = "rgba(88, 28, 135, 0.04)";
       ctx.fillRect(0, h * 0.7, w, h * 0.3);
     }
 
-    // Spawn particles based on intensity
-    const spawnRate = 0.5 + intensity * 2;
-    if (Math.random() < spawnRate * 0.05) {
-      if (theme === "warroom") {
-        particlesRef.current.push(createSakura(w, h));
-        if (intensity > 0.3 && Math.random() < 0.3) {
-          particlesRef.current.push(createFirefly(w, h));
-        }
-        if (intensity > 0.5 && Math.random() < 0.2) {
-          particlesRef.current.push(createEmber(w, h));
-        }
-      } else {
-        particlesRef.current.push(createSakura(w, h));
-        if (Math.random() < 0.4 + intensity * 0.3) {
-          particlesRef.current.push(createEnergy(w, h));
+    const particles = particlesRef.current;
+
+    // Spawn with cap
+    if (particles.length < MAX_PARTICLES) {
+      const spawnRate = 0.5 + intensity * 2;
+      if (Math.random() < spawnRate * 0.05) {
+        if (theme === "warroom") {
+          particles.push(createSakura(w));
+          if (intensity > 0.3 && Math.random() < 0.3) particles.push(createFirefly(w, h));
+          if (intensity > 0.5 && Math.random() < 0.2) particles.push(createEmber(w, h));
+        } else {
+          particles.push(createSakura(w));
+          if (Math.random() < 0.4 + intensity * 0.3) particles.push(createEnergy(w, h));
         }
       }
+
+      // Baseline sakura
+      let sakuraCount = 0;
+      for (let i = 0; i < particles.length; i++) {
+        if (particles[i].type === "sakura") sakuraCount++;
+      }
+      if (sakuraCount < 6) particles.push(createSakura(w));
     }
 
-    // Always have some baseline sakura
-    if (particlesRef.current.filter((p) => p.type === "sakura").length < 8) {
-      particlesRef.current.push(createSakura(w, h));
-    }
-
-    // Update & draw particles
-    particlesRef.current = particlesRef.current.filter((p) => {
+    // Update & draw — single pass, no save/restore for simple shapes
+    let writeIdx = 0;
+    for (let i = 0; i < particles.length; i++) {
+      const p = particles[i];
       p.life++;
-      if (p.life > p.maxLife) return false;
+      if (p.life > p.maxLife) continue;
+      if (p.x < -20 || p.x > w + 20 || p.y < -20 || p.y > h + 20) continue;
 
       p.x += p.vx;
       p.y += p.vy;
       p.rotation += p.rotationSpeed;
 
-      // Fade in/out
       const lifeRatio = p.life / p.maxLife;
       if (lifeRatio < 0.1) {
         p.opacity = (lifeRatio / 0.1) * (p.type === "firefly" ? 0.6 : 0.7);
@@ -262,37 +216,24 @@ export function AnimatedCanvas({ theme, intensity, className }: AnimatedCanvasPr
         p.opacity *= 0.98;
       }
 
-      // Firefly wandering
       if (p.type === "firefly") {
         p.vx += (Math.random() - 0.5) * 0.05;
         p.vy += (Math.random() - 0.5) * 0.05;
         p.opacity = Math.abs(Math.sin(p.life * 0.02)) * 0.6;
       }
-
-      // Sakura wobble
       if (p.type === "sakura") {
         p.vx = Math.sin(p.life * 0.01) * 0.5 + 0.2;
       }
 
-      // Draw based on type
-      switch (p.type) {
-        case "sakura":
-          drawSakura(ctx, p);
-          break;
-        case "firefly":
-          drawFirefly(ctx, p);
-          break;
-        case "energy":
-          drawEnergy(ctx, p);
-          break;
-        case "ember":
-          drawEmber(ctx, p);
-          break;
+      if (p.type === "sakura") {
+        drawSakura(ctx, p);
+      } else {
+        drawGlowDot(ctx, p);
       }
 
-      // Remove if off screen
-      return p.x > -20 && p.x < w + 20 && p.y > -20 && p.y < h + 20;
-    });
+      particles[writeIdx++] = p;
+    }
+    particles.length = writeIdx;
 
     frameRef.current = requestAnimationFrame(animate);
   }, [theme, intensity]);
@@ -304,12 +245,15 @@ export function AnimatedCanvas({ theme, intensity, className }: AnimatedCanvasPr
     const resize = () => {
       const rect = canvas.parentElement?.getBoundingClientRect();
       if (rect) {
-        canvas.width = rect.width * window.devicePixelRatio;
-        canvas.height = rect.height * window.devicePixelRatio;
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
         canvas.style.width = `${rect.width}px`;
         canvas.style.height = `${rect.height}px`;
         const ctx = canvas.getContext("2d");
-        if (ctx) ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+        if (ctx) ctx.scale(dpr, dpr);
+        // Invalidate grid cache on resize
+        gridCanvasRef.current = null;
       }
     };
 

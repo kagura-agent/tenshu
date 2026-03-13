@@ -202,6 +202,30 @@ export function WarRoom({ agents, onSelectAgent, selectedAgentId }: WarRoomProps
         </div>
       </div>
 
+      {/* Terminal feed */}
+      {current?.recentLines && current.recentLines.length > 0 && (
+        <div className="relative z-10 px-6 pb-1">
+          <div className="w-52 font-mono text-[10px] leading-relaxed bg-black/30 rounded-lg border border-amber-700/15 p-3">
+            {current.recentLines.slice(-4).map((line, i, arr) => {
+              const isNewest = i === arr.length - 1;
+              const color = /error/i.test(line)
+                ? "text-red-400"
+                : /responded/i.test(line)
+                  ? "text-amber-300"
+                  : isNewest
+                    ? "text-amber-400"
+                    : "text-amber-400/40";
+              return (
+                <div key={`${i}-${line}`} className={color}>
+                  {line}
+                </div>
+              );
+            })}
+            <div className="text-amber-400 animate-pulse">_</div>
+          </div>
+        </div>
+      )}
+
       {/* Shoji screen bottom */}
       <div className="relative z-10 flex h-12 items-start px-6 gap-2 shrink-0" style={{
         background: "linear-gradient(to top, #1a1410 0%, transparent 100%)",

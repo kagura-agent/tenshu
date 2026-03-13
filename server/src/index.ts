@@ -10,6 +10,7 @@ import cronRoutes from "./routes/cron.js";
 import resultsRoutes from "./routes/results.js";
 import systemRoutes from "./routes/system.js";
 import activityRoutes from "./routes/activity.js";
+import avatarRoutes from "./routes/avatars.js";
 import { addClient, removeClient } from "./ws/handler.js";
 import { startGatewayPoller, startWorkspaceWatchers } from "./ws/watchers.js";
 
@@ -40,6 +41,7 @@ app.route("/api/cron", cronRoutes);
 app.route("/api/results", resultsRoutes);
 app.route("/api/system", systemRoutes);
 app.route("/api/activity", activityRoutes);
+app.route("/api/avatars", avatarRoutes);
 
 app.get(
   "/ws",

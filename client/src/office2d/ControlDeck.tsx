@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useMemo } from "react";
 import type { Agent } from "@tenshu/shared";
 import { STATUS_COLORS } from "@tenshu/shared";
 import { AgentSprite } from "./sprites";
@@ -35,32 +35,22 @@ function guessRole(agent: Agent): string {
 }
 
 
-function TerminalFeed() {
-  const [lines, setLines] = useState<string[]>([
-    ">> tenshu v0.1.0 初期化完了",
-    ">> agent_gateway: connected",
-    ">> monitoring: active",
-  ]);
+function TerminalFeed({ lines }: { lines: string[] }) {
+  const display = lines.slice(-6);
 
-  useEffect(() => {
-    const msgs = [
-      ">> cycle_check: nominal",
-      ">> ratchet: threshold=5.0",
-      ">> agents: online",
-      ">> ollama: model loaded",
-      ">> heartbeat: ok",
-      ">> ralph_loop: standby",
-    ];
-    const interval = setInterval(() => {
-      setLines((prev) => [...prev, msgs[Math.floor(Math.random() * msgs.length)]].slice(-6));
-    }, 3500);
-    return () => clearInterval(interval);
-  }, []);
+  function lineColor(line: string, isNewest: boolean): string {
+    if (/error/i.test(line)) return "text-red-400";
+    if (/responded/i.test(line)) return "text-cyan-400";
+    return isNewest ? "text-emerald-400" : "text-emerald-400/40";
+  }
 
   return (
     <div className="w-56 font-mono text-[10px] leading-relaxed bg-black/40 rounded-lg border border-emerald-500/10 p-3 shrink-0">
-      {lines.map((line, i) => (
-        <div key={`${i}-${line}`} className={i === lines.length - 1 ? "text-emerald-400" : "text-emerald-400/40"}>
+      {display.length === 0 && (
+        <div className="text-emerald-400/40">{">> awaiting data..."}</div>
+      )}
+      {display.map((line, i) => (
+        <div key={`${i}-${line}`} className={lineColor(line, i === display.length - 1)}>
           {line}
         </div>
       ))}
@@ -272,7 +262,7 @@ export function ControlDeck({ agents, onSelectAgent, selectedAgentId }: ControlD
       {/* Footer: terminal + decorations */}
       <div className="relative z-10 h-32 shrink-0 flex items-end px-4 pb-4">
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-500/20 to-transparent" />
-        <TerminalFeed />
+        <TerminalFeed lines={current?.recentLines || []} />
 
         {/* Torii gate */}
         <svg className="absolute bottom-4 right-8 opacity-[0.06]" width="80" height="100" viewBox="0 0 80 100">

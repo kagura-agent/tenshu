@@ -1,13 +1,26 @@
-import { X } from "lucide-react";
+import { useState } from "react";
+import { X, Pencil } from "lucide-react";
 import type { Agent } from "@tenshu/shared";
 import { STATUS_COLORS } from "@tenshu/shared";
 import { AgentSprite } from "./sprites";
 import { useAgentHistory } from "@/hooks/useAgentHistory";
+import { useAvatarConfig } from "@/hooks/useAvatarConfig";
+import { AvatarPicker } from "@/components/AvatarPicker";
 
 interface AgentPanelProps {
   agent: Agent;
   onClose: () => void;
 }
+
+// Map agent roles to character image files (same as sprites.tsx)
+const ROLE_IMAGES: Record<string, string> = {
+  planner: "/assets/characters/strategist_0.png",
+  researcher: "/assets/characters/scientist_0.png",
+  coder: "/assets/characters/engineer_0.png",
+  qa: "/assets/characters/guardian_0.png",
+  comms: "/assets/characters/messenger_0.png",
+  leader: "/assets/characters/commander_0.png",
+};
 
 function guessRole(agent: Agent): string {
   const id = agent.config.id.toLowerCase();
@@ -24,6 +37,8 @@ function guessRole(agent: Agent): string {
 }
 
 export default function AgentPanel({ agent, onClose }: AgentPanelProps) {
+  const [showPicker, setShowPicker] = useState(false);
+  const { data: avatarConfig } = useAvatarConfig();
   const status = agent.state?.status ?? "offline";
   const statusColor = STATUS_COLORS[status] ?? STATUS_COLORS.offline;
   const isActive = status === "working" || status === "thinking";
@@ -31,18 +46,32 @@ export default function AgentPanel({ agent, onClose }: AgentPanelProps) {
   const { data: history } = useAgentHistory(8);
   const agentHistory = history?.[role] || [];
 
+  const currentImage =
+    avatarConfig?.[agent.config.id] ||
+    ROLE_IMAGES[role] ||
+    "/assets/characters/ronin_0.png";
+
   return (
     <div className="absolute right-0 top-0 h-full w-96 bg-black/90 backdrop-blur-md text-white p-6 shadow-2xl border-l border-white/10 z-50 overflow-y-auto">
       {/* Header */}
       <div className="flex items-start justify-between mb-6">
         <div className="flex items-center gap-4">
-          <AgentSprite
-            agentId={agent.config.id}
-            agentName={agent.config.name}
-            size={80}
-            glow={isActive ? statusColor : undefined}
-            isActive={isActive}
-          />
+          <div className="relative group">
+            <AgentSprite
+              agentId={agent.config.id}
+              agentName={agent.config.name}
+              size={80}
+              glow={isActive ? statusColor : undefined}
+              isActive={isActive}
+            />
+            <button
+              onClick={() => setShowPicker(true)}
+              className="absolute -bottom-1 -right-1 p-1.5 bg-zinc-800 hover:bg-zinc-600 rounded-full border border-zinc-600 transition-colors opacity-0 group-hover:opacity-100"
+              title="Change avatar"
+            >
+              <Pencil size={12} />
+            </button>
+          </div>
           <div>
             <h2 className="text-2xl font-bold">{agent.config.name}</h2>
             <p className="text-sm text-gray-400 mt-0.5">{role}</p>
@@ -113,7 +142,7 @@ export default function AgentPanel({ agent, onClose }: AgentPanelProps) {
                       {entry.score.toFixed(1)}
                     </span>
                     <span className={`text-xs ${entry.status === "keep" ? "text-emerald-400" : "text-red-400"}`}>
-                      {entry.status === "keep" ? "✓" : "✗"}
+                      {entry.status === "keep" ? "\u2713" : "\u2717"}
                     </span>
                   </div>
                 </div>
@@ -131,6 +160,16 @@ export default function AgentPanel({ agent, onClose }: AgentPanelProps) {
           <span className="text-sm text-gray-300">{agent.color}</span>
         </div>
       </div>
+
+      {/* Avatar picker modal */}
+      {showPicker && (
+        <AvatarPicker
+          agentId={agent.config.id}
+          agentName={agent.config.name}
+          currentImage={currentImage}
+          onClose={() => setShowPicker(false)}
+        />
+      )}
     </div>
   );
 }

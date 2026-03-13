@@ -3,6 +3,8 @@
  * Images generated with Flux Schnell via ComfyUI.
  */
 
+import { useAvatarConfig } from "@/hooks/useAvatarConfig";
+
 interface SpriteProps {
   size?: number;
   glow?: string;
@@ -44,8 +46,10 @@ function guessRoleForSprite(agentId: string, agentName: string): string {
 }
 
 export function AgentSprite({ agentId, agentName, size = 64, glow, className, isActive }: AgentSpriteProps) {
+  const { data: avatarConfig } = useAvatarConfig();
   const role = guessRoleForSprite(agentId, agentName);
-  const src = ROLE_IMAGES[role] || DEFAULT_IMAGE;
+  const customImage = avatarConfig?.[agentId];
+  const src = customImage || ROLE_IMAGES[role] || DEFAULT_IMAGE;
 
   return (
     <div
