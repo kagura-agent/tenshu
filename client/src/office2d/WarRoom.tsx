@@ -1,5 +1,10 @@
+import { useMemo } from "react";
 import type { Agent } from "@tenshu/shared";
 import { STATUS_COLORS } from "@tenshu/shared";
+import { AgentSprite } from "./sprites";
+import { AnimatedCanvas } from "./AnimatedCanvas";
+import { useAgentHistory, useCurrentCycle } from "@/hooks/useAgentHistory";
+import type { CycleEntry } from "@/hooks/useAgentHistory";
 
 interface WarRoomProps {
   agents: Agent[];
@@ -29,24 +34,66 @@ function guessRole(agent: Agent): string {
   return "coder";
 }
 
+function ScoreBar({ score }: { score: number }) {
+  const color =
+    score >= 8 ? "#22c55e" : score >= 6 ? "#eab308" : score >= 4 ? "#f97316" : "#ef4444";
+  return (
+    <div className="flex items-center gap-1">
+      <div className="w-12 h-1.5 rounded-full bg-zinc-800 overflow-hidden">
+        <div
+          className="h-full rounded-full transition-all"
+          style={{ width: `${score * 10}%`, backgroundColor: color }}
+        />
+      </div>
+      <span className="text-[9px] font-mono" style={{ color }}>
+        {score.toFixed(1)}
+      </span>
+    </div>
+  );
+}
+
+function MiniHistory({ entries }: { entries: CycleEntry[] }) {
+  if (!entries.length) return null;
+  return (
+    <div className="mt-2 space-y-1">
+      {entries.slice(0, 3).map((e) => (
+        <div key={e.cycle} className="flex items-center gap-2 text-[9px]">
+          <span className="text-zinc-600 w-8 shrink-0">#{e.cycle}</span>
+          <span className="text-amber-200/60 truncate flex-1">{e.task}</span>
+          <ScoreBar score={e.score} />
+          <span
+            className={`w-3 text-center ${e.status === "keep" ? "text-emerald-400" : "text-red-400"}`}
+          >
+            {e.status === "keep" ? "✓" : "✗"}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function WarRoom({ agents, onSelectAgent, selectedAgentId }: WarRoomProps) {
+  const { data: history } = useAgentHistory(8);
+  const { data: current } = useCurrentCycle();
+
+  const intensity = useMemo(() => {
+    const activeCount = agents.filter(
+      (a) => a.state?.status === "working" || a.state?.status === "thinking"
+    ).length;
+    return Math.min(1, activeCount / Math.max(agents.length, 1));
+  }, [agents]);
+
   return (
     <div className="w-full h-full overflow-hidden relative flex flex-col" style={{ background: "#1a1410" }}>
-      {/* Tatami floor */}
-      <div className="absolute inset-0" style={{
-        background: `
-          repeating-linear-gradient(0deg, transparent, transparent 79px, #3a2e1e 79px, #3a2e1e 81px),
-          repeating-linear-gradient(90deg, transparent, transparent 119px, #3a2e1e 119px, #3a2e1e 121px),
-          linear-gradient(135deg, #2a2215 0%, #1e1a10 100%)
-        `,
-      }} />
+      {/* Animated background */}
+      <AnimatedCanvas theme="warroom" intensity={intensity} />
 
-      {/* Shoji screen top border */}
-      <div className="relative z-10 flex h-14 items-end px-6 gap-2 shrink-0" style={{
+      {/* Shoji screen top */}
+      <div className="relative z-10 flex h-12 items-end px-6 gap-2 shrink-0" style={{
         background: "linear-gradient(to bottom, #1a1410 0%, transparent 100%)",
       }}>
         {Array.from({ length: 16 }).map((_, i) => (
-          <div key={i} className="flex-1 h-10 rounded-t-sm" style={{
+          <div key={i} className="flex-1 h-8 rounded-t-sm" style={{
             background: "linear-gradient(to bottom, rgba(245, 230, 208, 0.15) 0%, rgba(245, 230, 208, 0.03) 100%)",
             border: "1px solid rgba(180, 140, 80, 0.12)",
             borderBottom: "none",
@@ -54,136 +101,104 @@ export function WarRoom({ agents, onSelectAgent, selectedAgentId }: WarRoomProps
         ))}
       </div>
 
-      {/* Main content area */}
-      <div className="flex-1 relative z-10 flex flex-col items-center justify-center gap-8 px-8">
-        {/* Hanging scroll (kakejiku) */}
-        <div className="flex flex-col items-center">
-          <div className="w-28 h-1.5 rounded bg-amber-700/50" />
-          <div className="w-24 border border-amber-700/30 px-4 py-3 flex flex-col items-center" style={{
-            background: "linear-gradient(180deg, #3d3020 0%, #2a2215 100%)",
-          }}>
-            <span className="text-3xl font-bold text-amber-300/70" style={{ writingMode: "vertical-rl" }}>
-              作戦室
+      {/* Current cycle banner */}
+      {current?.running && (
+        <div className="relative z-20 mx-auto mt-2 flex items-center gap-3 px-4 py-2 rounded-lg border border-amber-700/30" style={{
+          background: "linear-gradient(90deg, rgba(42, 34, 21, 0.9) 0%, rgba(30, 26, 16, 0.9) 100%)",
+        }}>
+          <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+          <span className="text-xs text-amber-300/80 font-mono">
+            Cycle #{current.cycle} — {current.task}
+          </span>
+          {current.lastStatus && (
+            <span className="text-[10px] text-amber-200/40">
+              {current.lastStatus}
             </span>
-          </div>
-          <div className="w-20 h-1 rounded bg-amber-700/30" />
+          )}
         </div>
+      )}
 
-        {/* Central war table with agents around it */}
-        <div className="relative">
-          {/* The table */}
-          <div className="w-[500px] h-[220px] rounded-xl border-2 border-amber-800/40 relative" style={{
-            background: "linear-gradient(135deg, #3a2e1e 0%, #2a2015 50%, #3a2e1e 100%)",
-            boxShadow: "0 8px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,200,100,0.05)",
-          }}>
-            {/* Map texture on table */}
-            <div className="absolute inset-4 rounded border border-amber-700/20 overflow-hidden" style={{
-              background: "linear-gradient(135deg, rgba(245, 230, 208, 0.08) 0%, rgba(232, 213, 184, 0.04) 100%)",
-            }}>
-              {/* Grid lines on map */}
-              <div className="absolute inset-0" style={{
-                background: `
-                  repeating-linear-gradient(0deg, transparent, transparent 29px, rgba(180,140,80,0.06) 29px, rgba(180,140,80,0.06) 30px),
-                  repeating-linear-gradient(90deg, transparent, transparent 29px, rgba(180,140,80,0.06) 29px, rgba(180,140,80,0.06) 30px)
-                `,
-              }} />
-            </div>
-            {/* Tenshu stamp */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-5xl font-bold" style={{ color: "rgba(180, 40, 40, 0.15)" }}>天守</span>
-            </div>
-          </div>
-
-          {/* Agents positioned around the table */}
-          {agents.map((agent, i) => {
-            const total = agents.length;
-            const angle = (i / total) * 2 * Math.PI - Math.PI / 2;
-            const rx = 320;
-            const ry = 200;
-            const x = Math.cos(angle) * rx;
-            const y = Math.sin(angle) * ry;
+      {/* Main area — agent cards in a grid */}
+      <div className="flex-1 relative z-10 flex items-center justify-center px-6 py-4">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl w-full">
+          {agents.map((agent) => {
             const status = agent.state?.status ?? "offline";
             const statusColor = STATUS_COLORS[status] ?? STATUS_COLORS.offline;
             const role = guessRole(agent);
             const isSelected = selectedAgentId === agent.config.id;
             const isActive = status === "working" || status === "thinking";
+            const agentHistory = history?.[role] || [];
 
             return (
               <button
                 key={agent.config.id}
                 onClick={() => onSelectAgent(agent)}
-                className="absolute group focus:outline-none"
+                className={`group focus:outline-none text-left rounded-xl p-4 transition-all duration-200 ${
+                  isSelected ? "scale-[1.02]" : "hover:scale-[1.01]"
+                }`}
                 style={{
-                  left: `calc(50% + ${x}px)`,
-                  top: `calc(50% + ${y}px)`,
-                  transform: "translate(-50%, -50%)",
+                  background: isSelected
+                    ? `linear-gradient(135deg, ${agent.color}15 0%, ${agent.color}08 100%)`
+                    : "linear-gradient(135deg, #2e261c 0%, #221e16 100%)",
+                  border: isSelected
+                    ? `2px solid ${agent.color}55`
+                    : "1px solid rgba(180, 140, 80, 0.15)",
+                  boxShadow: isSelected
+                    ? `0 0 24px ${agent.color}15`
+                    : "0 4px 12px rgba(0,0,0,0.3)",
                 }}
               >
-                <div className={`flex flex-col items-center transition-all duration-200 ${isSelected ? "scale-110" : "group-hover:scale-105"}`}>
-                  {/* Zabuton (cushion) + avatar */}
-                  <div className="relative w-28 rounded-xl p-3 text-center" style={{
-                    background: isSelected
-                      ? `linear-gradient(135deg, ${agent.color}22 0%, ${agent.color}0a 100%)`
-                      : "linear-gradient(135deg, #2e261c 0%, #221e16 100%)",
-                    border: isSelected
-                      ? `2px solid ${agent.color}55`
-                      : "1px solid rgba(180, 140, 80, 0.2)",
-                    boxShadow: isSelected
-                      ? `0 0 24px ${agent.color}18, 0 4px 16px rgba(0,0,0,0.4)`
-                      : "0 4px 16px rgba(0,0,0,0.4)",
-                  }}>
-                    {/* Avatar */}
-                    <div className="text-3xl mb-1" style={{
-                      filter: isActive ? `drop-shadow(0 0 8px ${statusColor}66)` : "none",
-                    }}>
-                      {agent.emoji || "🤖"}
-                    </div>
-
-                    {/* Name */}
-                    <div className="text-xs font-bold text-amber-200/90 truncate">
-                      {agent.config.name}
-                    </div>
-
-                    {/* Role */}
-                    <div className="text-[10px] text-amber-200/40">{role}</div>
-
-                    {/* Status dot */}
-                    <div className="absolute -top-1 -right-1">
+                {/* Header: sprite + name + status */}
+                <div className="flex items-start gap-3">
+                  <AgentSprite
+                    agentId={agent.config.id}
+                    agentName={agent.config.name}
+                    size={64}
+                    glow={isActive ? statusColor : undefined}
+                    isActive={isActive}
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-bold text-amber-200/90">
+                        {agent.config.name}
+                      </span>
                       <div
-                        className={`w-3 h-3 rounded-full border-2 border-[#1a1410] ${isActive ? "animate-pulse" : ""}`}
+                        className={`w-2.5 h-2.5 rounded-full ${isActive ? "animate-pulse" : ""}`}
                         style={{ backgroundColor: statusColor }}
                       />
                     </div>
-                  </div>
-
-                  {/* Status kanji badge */}
-                  <div className="mt-2 px-3 py-1 rounded-md text-[10px] font-bold border" style={{
-                    color: statusColor,
-                    borderColor: `${statusColor}44`,
-                    backgroundColor: `${statusColor}15`,
-                  }}>
-                    {STATUS_KANJI[status] || status}
-                  </div>
-
-                  {/* Task tooltip on hover */}
-                  {agent.state?.currentTask && (
-                    <div className="mt-1 max-w-[160px] text-[9px] text-zinc-500 truncate text-center opacity-0 group-hover:opacity-100 transition-opacity">
-                      {agent.state.currentTask}
+                    <div className="text-[10px] text-amber-200/40">{role}</div>
+                    <div className="mt-0.5 px-2 py-0.5 rounded text-[9px] font-bold inline-block border" style={{
+                      color: statusColor,
+                      borderColor: `${statusColor}33`,
+                      backgroundColor: `${statusColor}0d`,
+                    }}>
+                      {STATUS_KANJI[status] || status}
                     </div>
-                  )}
+                  </div>
                 </div>
+
+                {/* Current task */}
+                {agent.state?.currentTask && (
+                  <div className="mt-2 text-[10px] text-zinc-400 truncate">
+                    {agent.state.currentTask}
+                  </div>
+                )}
+
+                {/* Recent history */}
+                <MiniHistory entries={agentHistory} />
               </button>
             );
           })}
         </div>
       </div>
 
-      {/* Shoji screen bottom border */}
-      <div className="relative z-10 flex h-14 items-start px-6 gap-2 shrink-0" style={{
+      {/* Shoji screen bottom */}
+      <div className="relative z-10 flex h-12 items-start px-6 gap-2 shrink-0" style={{
         background: "linear-gradient(to top, #1a1410 0%, transparent 100%)",
       }}>
         {Array.from({ length: 16 }).map((_, i) => (
-          <div key={i} className="flex-1 h-10 rounded-b-sm" style={{
+          <div key={i} className="flex-1 h-8 rounded-b-sm" style={{
             background: "linear-gradient(to top, rgba(245, 230, 208, 0.15) 0%, rgba(245, 230, 208, 0.03) 100%)",
             border: "1px solid rgba(180, 140, 80, 0.12)",
             borderTop: "none",
@@ -192,7 +207,7 @@ export function WarRoom({ agents, onSelectAgent, selectedAgentId }: WarRoomProps
       </div>
 
       {/* Corner lanterns */}
-      {["top-20 left-10", "top-20 right-10", "bottom-20 left-10", "bottom-20 right-10"].map((pos, i) => (
+      {["top-16 left-10", "top-16 right-10", "bottom-16 left-10", "bottom-16 right-10"].map((pos, i) => (
         <div key={i} className={`absolute ${pos} z-10 flex flex-col items-center`}>
           <div className="w-4 h-6 rounded-full border border-amber-600/40" style={{
             background: "radial-gradient(ellipse, rgba(255, 180, 60, 0.6) 0%, rgba(255, 140, 40, 0.2) 60%, transparent 100%)",

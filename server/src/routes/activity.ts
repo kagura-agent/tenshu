@@ -164,4 +164,136 @@ activity.get("/current", async (c) => {
   }
 });
 
+// Per-agent history — combines results.tsv + team-log for a specific agent or all agents
+activity.get("/agent-history", async (c) => {
+  try {
+    const limit = Number(c.req.query("limit") || "10");
+    const resultsPath =
+      process.env.RESULTS_TSV ||
+      `${process.env.HOME}/clawd/team/knowledge/results.tsv`;
+
+    // Read results.tsv for cycle history
+    const results: Array<{
+      timestamp: string;
+      cycle: number;
+      task: string;
+      agent: string;
+      score: number;
+      status: string;
+      description: string;
+    }> = [];
+
+    if (existsSync(resultsPath)) {
+      const raw = await readFile(resultsPath, "utf-8");
+      const lines = raw.trim().split("\n");
+      for (const line of lines.slice(1)) {
+        const [timestamp, cycle, task, agent, score, status, description] =
+          line.split("\t");
+        results.push({
+          timestamp,
+          cycle: Number(cycle),
+          task,
+          agent,
+          score: Number(score),
+          status,
+          description: description || "",
+        });
+      }
+    }
+
+    // Read team-log for detailed task descriptions
+    const logEntries: Array<{
+      timestamp: string;
+      type: string;
+      agent: string;
+      task: string;
+      result_length: number;
+      score: number;
+      verdict: string;
+    }> = [];
+
+    if (existsSync(TEAM_LOG)) {
+      const raw = await readFile(TEAM_LOG, "utf-8");
+      const lines = raw.trim().split("\n").filter(Boolean);
+      for (const line of lines.slice(-200)) {
+        try {
+          logEntries.push(JSON.parse(line));
+        } catch {
+          // skip malformed lines
+        }
+      }
+    }
+
+    // Group by agent — deduplicate cycles, keep coder entries (they have scores)
+    const agentMap: Record<
+      string,
+      Array<{
+        cycle: number;
+        task: string;
+        score: number;
+        status: string;
+        description: string;
+        timestamp: string;
+        detailedTask: string;
+        verdict: string;
+        resultLength: number;
+      }>
+    > = {};
+
+    // Build from results.tsv (coder entries only — they have the real scores)
+    const coderResults = results.filter((r) => r.agent === "coder");
+    const seenCycles = new Set<number>();
+
+    for (const r of coderResults.reverse()) {
+      if (seenCycles.has(r.cycle)) continue;
+      seenCycles.add(r.cycle);
+
+      // Find matching team-log entries for this cycle's timestamp
+      const cycleLog = logEntries.filter(
+        (l) =>
+          l.timestamp.slice(0, 16) === r.timestamp.slice(0, 16) ||
+          (l.score === r.score && l.score > 0)
+      );
+
+      // Get detailed task from the research or coding log entry
+      const detailedEntry =
+        cycleLog.find((l) => l.type === "research") ||
+        cycleLog.find((l) => l.type === "coding");
+
+      const entry = {
+        cycle: r.cycle,
+        task: r.task,
+        score: r.score,
+        status: r.status,
+        description: r.description,
+        timestamp: r.timestamp,
+        detailedTask: detailedEntry?.task?.slice(0, 300) || "",
+        verdict:
+          cycleLog.find((l) => l.type === "qa_review")?.verdict || "",
+        resultLength: detailedEntry?.result_length || 0,
+      };
+
+      // Add to all relevant agents
+      for (const agentRole of [
+        "researcher",
+        "coder",
+        "qa",
+        "planner",
+      ]) {
+        if (!agentMap[agentRole]) agentMap[agentRole] = [];
+        agentMap[agentRole].push(entry);
+      }
+    }
+
+    // Trim to limit per agent
+    for (const key of Object.keys(agentMap)) {
+      agentMap[key] = agentMap[key].slice(0, limit);
+    }
+
+    return c.json(agentMap);
+  } catch (e) {
+    return c.json({ error: (e as Error).message }, 500);
+  }
+});
+
 export default activity;

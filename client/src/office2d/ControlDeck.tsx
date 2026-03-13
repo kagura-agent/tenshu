@@ -1,6 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import type { Agent } from "@tenshu/shared";
 import { STATUS_COLORS } from "@tenshu/shared";
+import { AgentSprite } from "./sprites";
+import { AnimatedCanvas } from "./AnimatedCanvas";
+import { useAgentHistory, useCurrentCycle } from "@/hooks/useAgentHistory";
+import type { CycleEntry } from "@/hooks/useAgentHistory";
 
 interface ControlDeckProps {
   agents: Agent[];
@@ -16,52 +20,20 @@ const STATUS_KANJI: Record<string, string> = {
   offline: "不在",
 };
 
-function SakuraPetals() {
-  const [petals] = useState(() =>
-    Array.from({ length: 20 }).map((_, i) => ({
-      id: i,
-      left: Math.random() * 100,
-      delay: Math.random() * 10,
-      duration: 8 + Math.random() * 8,
-      size: 6 + Math.random() * 8,
-    }))
-  );
-
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none z-20">
-      {petals.map((p) => (
-        <div
-          key={p.id}
-          className="absolute sakura-petal"
-          style={{
-            left: `${p.left}%`,
-            top: "-20px",
-            width: `${p.size}px`,
-            height: `${p.size * 0.7}px`,
-            background: "radial-gradient(ellipse, #ffb7c5 20%, #ff91a4 100%)",
-            borderRadius: "50% 0 50% 50%",
-            animationDelay: `${p.delay}s`,
-            animationDuration: `${p.duration}s`,
-          }}
-        />
-      ))}
-      <style>{`
-        .sakura-petal {
-          opacity: 0;
-          animation-name: sakuraFall;
-          animation-iteration-count: infinite;
-          animation-timing-function: linear;
-        }
-        @keyframes sakuraFall {
-          0% { opacity: 0; transform: translateY(-20px) translateX(0) rotate(0deg); }
-          5% { opacity: 0.8; }
-          95% { opacity: 0.4; }
-          100% { opacity: 0; transform: translateY(100vh) translateX(60px) rotate(540deg); }
-        }
-      `}</style>
-    </div>
-  );
+function guessRole(agent: Agent): string {
+  const id = agent.config.id.toLowerCase();
+  const name = agent.config.name.toLowerCase();
+  for (const role of ["planner", "researcher", "coder", "qa", "comms"]) {
+    if (id.includes(role) || name.includes(role)) return role;
+  }
+  if (name.includes("erwin") || name.includes("atlas")) return "planner";
+  if (name.includes("senku") || name.includes("scout")) return "researcher";
+  if (name.includes("bulma") || name.includes("forge")) return "coder";
+  if (name.includes("vegeta") || name.includes("lens")) return "qa";
+  if (name.includes("jet") || name.includes("herald")) return "comms";
+  return "coder";
 }
+
 
 function TerminalFeed() {
   const [lines, setLines] = useState<string[]>([
@@ -80,16 +52,13 @@ function TerminalFeed() {
       ">> ralph_loop: standby",
     ];
     const interval = setInterval(() => {
-      setLines((prev) => {
-        const next = [...prev, msgs[Math.floor(Math.random() * msgs.length)]];
-        return next.slice(-6);
-      });
+      setLines((prev) => [...prev, msgs[Math.floor(Math.random() * msgs.length)]].slice(-6));
     }, 3500);
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <div className="absolute bottom-5 left-5 z-10 w-60 font-mono text-[10px] leading-relaxed bg-black/40 rounded-lg border border-emerald-500/10 p-3">
+    <div className="w-56 font-mono text-[10px] leading-relaxed bg-black/40 rounded-lg border border-emerald-500/10 p-3 shrink-0">
       {lines.map((line, i) => (
         <div key={`${i}-${line}`} className={i === lines.length - 1 ? "text-emerald-400" : "text-emerald-400/40"}>
           {line}
@@ -100,24 +69,62 @@ function TerminalFeed() {
   );
 }
 
+function ScoreBar({ score }: { score: number }) {
+  const color =
+    score >= 8 ? "#22c55e" : score >= 6 ? "#eab308" : score >= 4 ? "#f97316" : "#ef4444";
+  return (
+    <div className="flex items-center gap-1">
+      <div className="w-10 h-1.5 rounded-full bg-zinc-800 overflow-hidden">
+        <div
+          className="h-full rounded-full"
+          style={{ width: `${score * 10}%`, backgroundColor: color }}
+        />
+      </div>
+      <span className="text-[9px] font-mono" style={{ color }}>{score.toFixed(1)}</span>
+    </div>
+  );
+}
+
+function MiniHistory({ entries }: { entries: CycleEntry[] }) {
+  if (!entries.length) return null;
+  return (
+    <div className="mt-1.5 space-y-0.5">
+      {entries.slice(0, 3).map((e) => (
+        <div key={e.cycle} className="flex items-center gap-1.5 text-[8px]">
+          <span className="text-zinc-600 shrink-0">#{e.cycle}</span>
+          <span className="text-zinc-400 truncate flex-1">{e.task}</span>
+          <ScoreBar score={e.score} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function ControlDeck({ agents, onSelectAgent, selectedAgentId }: ControlDeckProps) {
+  const { data: history } = useAgentHistory(8);
+  const { data: current } = useCurrentCycle();
+
+  const intensity = useMemo(() => {
+    const activeCount = agents.filter(
+      (a) => a.state?.status === "working" || a.state?.status === "thinking"
+    ).length;
+    return Math.min(1, activeCount / Math.max(agents.length, 1));
+  }, [agents]);
+
   return (
     <div className="w-full h-full overflow-hidden relative flex flex-col" style={{
       background: "linear-gradient(180deg, #08081a 0%, #0d0d22 40%, #14102a 100%)",
     }}>
-      <SakuraPetals />
+      <AnimatedCanvas theme="deck" intensity={intensity} />
 
       {/* CRT scan lines */}
       <div className="absolute inset-0 pointer-events-none z-30 opacity-[0.04]" style={{
         background: "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.15) 2px, rgba(255,255,255,0.15) 4px)",
       }} />
 
-      {/* Neon ceiling line */}
-      <div className="relative z-10 h-16 shrink-0 flex items-center justify-center">
+      {/* Header */}
+      <div className="relative z-10 h-14 shrink-0 flex items-center justify-center">
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-400/50 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 h-12" style={{
-          background: "linear-gradient(to top, rgba(6, 182, 212, 0.05) 0%, transparent 100%)",
-        }} />
         <div className="flex items-center gap-4">
           <div className="h-px w-20 bg-gradient-to-r from-transparent to-cyan-400/40" />
           <span className="text-cyan-400/80 text-sm tracking-[0.4em] font-light">
@@ -125,108 +132,127 @@ export function ControlDeck({ agents, onSelectAgent, selectedAgentId }: ControlD
           </span>
           <div className="h-px w-20 bg-gradient-to-l from-transparent to-cyan-400/40" />
         </div>
+        {/* Status dots top right */}
+        <div className="absolute right-4 flex items-center gap-3">
+          {agents.map((a) => {
+            const s = a.state?.status ?? "offline";
+            const c = STATUS_COLORS[s] ?? STATUS_COLORS.offline;
+            return (
+              <div key={a.config.id} className="flex items-center gap-1.5">
+                <div className={`w-2 h-2 rounded-full ${s === "working" || s === "thinking" ? "animate-pulse" : ""}`} style={{ backgroundColor: c }} />
+                <span className="text-[10px] text-zinc-400">{a.config.name}</span>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
-      {/* Agent workstations — centered grid */}
-      <div className="flex-1 flex items-center justify-center z-10 px-4">
-        <div className="flex items-end gap-4 flex-wrap justify-center">
+      {/* Current cycle banner */}
+      {current?.running && (
+        <div className="relative z-20 mx-auto mt-1 flex items-center gap-3 px-4 py-1.5 rounded border border-cyan-500/20" style={{
+          background: "rgba(6, 182, 212, 0.05)",
+        }}>
+          <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+          <span className="text-xs text-cyan-300/80 font-mono">
+            Cycle #{current.cycle} — {current.task}
+          </span>
+          {current.lastStatus && (
+            <span className="text-[10px] text-cyan-200/40">{current.lastStatus}</span>
+          )}
+        </div>
+      )}
+
+      {/* Agent stations */}
+      <div className="flex-1 flex items-center justify-center z-10 px-4 py-4">
+        <div className="flex items-start gap-4 flex-wrap justify-center max-w-5xl">
           {agents.map((agent) => {
             const status = agent.state?.status ?? "offline";
             const statusColor = STATUS_COLORS[status] ?? STATUS_COLORS.offline;
+            const role = guessRole(agent);
             const isSelected = selectedAgentId === agent.config.id;
             const isActive = status === "working" || status === "thinking";
+            const agentHistory = history?.[role] || [];
 
             return (
               <button
                 key={agent.config.id}
                 onClick={() => onSelectAgent(agent)}
-                className="group focus:outline-none flex flex-col items-center"
+                className={`group focus:outline-none flex flex-col items-center transition-all duration-300 ${
+                  isSelected ? "-translate-y-2" : "hover:-translate-y-1"
+                }`}
               >
-                <div className={`relative transition-all duration-300 ${isSelected ? "scale-105 -translate-y-3" : "group-hover:-translate-y-1"}`}>
-                  {/* Glow behind monitor */}
+                {/* Monitor + sprite */}
+                <div className="relative">
                   {isActive && (
-                    <div className="absolute -inset-6 rounded-2xl" style={{
-                      background: `radial-gradient(ellipse, ${agent.color}18 0%, transparent 70%)`,
+                    <div className="absolute -inset-4 rounded-2xl" style={{
+                      background: `radial-gradient(ellipse, ${agent.color}15 0%, transparent 70%)`,
                     }} />
                   )}
 
-                  {/* Monitor */}
-                  <div className="w-32 h-24 rounded-lg border-2 relative overflow-hidden" style={{
+                  {/* Monitor frame */}
+                  <div className="w-44 rounded-lg border-2 relative overflow-hidden" style={{
                     borderColor: isSelected ? `${agent.color}88` : "rgba(100, 100, 160, 0.25)",
                     background: "linear-gradient(135deg, #0c0c1e 0%, #16162e 100%)",
                     boxShadow: isSelected
                       ? `0 0 30px ${agent.color}25, 0 8px 24px rgba(0,0,0,0.5)`
                       : "0 8px 24px rgba(0,0,0,0.5)",
                   }}>
-                    {/* Screen content */}
-                    <div className="absolute inset-[3px] rounded overflow-hidden">
-                      {/* Status bar */}
-                      <div className="flex items-center justify-between px-2 py-1.5" style={{
-                        background: `linear-gradient(90deg, ${statusColor}15 0%, transparent 100%)`,
-                        borderBottom: `1px solid ${statusColor}22`,
-                      }}>
-                        <div className="flex items-center gap-1.5">
-                          <div
-                            className={`w-2 h-2 rounded-full ${isActive ? "animate-pulse" : ""}`}
-                            style={{ backgroundColor: statusColor }}
-                          />
-                          <span className="text-[9px] font-mono font-bold" style={{ color: statusColor }}>
-                            {STATUS_KANJI[status]}
-                          </span>
-                        </div>
-                        <span className="text-[8px] text-zinc-500 font-mono">
-                          {agent.state?.model?.split(":")[0] || "—"}
+                    {/* Status bar */}
+                    <div className="flex items-center justify-between px-2 py-1.5" style={{
+                      background: `linear-gradient(90deg, ${statusColor}15 0%, transparent 100%)`,
+                      borderBottom: `1px solid ${statusColor}22`,
+                    }}>
+                      <div className="flex items-center gap-1.5">
+                        <div className={`w-2 h-2 rounded-full ${isActive ? "animate-pulse" : ""}`} style={{ backgroundColor: statusColor }} />
+                        <span className="text-[9px] font-mono font-bold" style={{ color: statusColor }}>
+                          {STATUS_KANJI[status]}
                         </span>
                       </div>
+                      <span className="text-[8px] text-zinc-500 font-mono">
+                        {agent.state?.model?.split(":")[0] || "—"}
+                      </span>
+                    </div>
 
-                      {/* Terminal lines */}
-                      <div className="p-2 space-y-1">
-                        {isActive ? (
-                          <>
-                            <div className="h-1.5 w-4/5 rounded-full" style={{ background: `${agent.color}35` }} />
-                            <div className="h-1.5 w-3/5 rounded-full" style={{ background: `${agent.color}25` }} />
-                            <div className="h-1.5 w-full rounded-full" style={{ background: `${agent.color}18` }} />
-                            <div className="h-1.5 w-2/3 rounded-full animate-pulse" style={{ background: `${agent.color}30` }} />
-                            <div className="h-1.5 w-1/2 rounded-full" style={{ background: `${agent.color}15` }} />
-                          </>
-                        ) : (
-                          <>
-                            <div className="h-1.5 w-3/4 rounded-full bg-zinc-700/30" />
-                            <div className="h-1.5 w-1/2 rounded-full bg-zinc-700/20" />
-                            <div className="h-1.5 w-5/6 rounded-full bg-zinc-700/15" />
-                          </>
-                        )}
-                      </div>
+                    {/* Screen: current task + history */}
+                    <div className="p-2 min-h-[60px]">
+                      {agent.state?.currentTask ? (
+                        <div className="text-[9px] text-zinc-400 line-clamp-2">
+                          {agent.state.currentTask}
+                        </div>
+                      ) : (
+                        <div className="text-[9px] text-zinc-600 italic">idle</div>
+                      )}
+                      <MiniHistory entries={agentHistory} />
                     </div>
                   </div>
 
                   {/* Monitor stand */}
                   <div className="flex flex-col items-center">
-                    <div className="w-3 h-5 bg-zinc-700 border-x border-zinc-600/30" />
-                    <div className="w-12 h-1.5 rounded-full bg-zinc-700 border border-zinc-600/20" />
+                    <div className="w-3 h-4 bg-zinc-700 border-x border-zinc-600/30" />
+                    <div className="w-10 h-1.5 rounded-full bg-zinc-700 border border-zinc-600/20" />
                   </div>
 
-                  {/* Agent emoji — sitting at desk */}
-                  <div className="absolute -bottom-1 -left-4 text-3xl" style={{
-                    filter: isActive ? `drop-shadow(0 0 8px ${agent.color}55)` : "none",
-                  }}>
-                    {agent.emoji || "🤖"}
+                  {/* Character sprite */}
+                  <div className="absolute -bottom-1 -left-6">
+                    <AgentSprite
+                      agentId={agent.config.id}
+                      agentName={agent.config.name}
+                      size={56}
+                      glow={isActive ? statusColor : undefined}
+                      isActive={isActive}
+                    />
                   </div>
                 </div>
 
-                {/* Name + status below */}
-                <div className="mt-4 flex flex-col items-center">
-                  <span className="text-sm font-bold tracking-wide" style={{
+                {/* Name */}
+                <div className="mt-3 flex flex-col items-center">
+                  <span className="text-xs font-bold tracking-wide" style={{
                     color: isSelected ? agent.color : "rgba(210, 210, 230, 0.8)",
                     textShadow: isSelected ? `0 0 12px ${agent.color}44` : "none",
                   }}>
                     {agent.config.name}
                   </span>
-                  {agent.state?.currentTask && (
-                    <span className="mt-1 text-[10px] text-zinc-500 max-w-[140px] truncate text-center opacity-0 group-hover:opacity-100 transition-opacity">
-                      {agent.state.currentTask}
-                    </span>
-                  )}
+                  <span className="text-[9px] text-zinc-600">{role}</span>
                 </div>
               </button>
             );
@@ -234,43 +260,24 @@ export function ControlDeck({ agents, onSelectAgent, selectedAgentId }: ControlD
         </div>
       </div>
 
-      {/* Floor with neon reflection */}
-      <div className="relative z-0 h-28 shrink-0">
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-500/25 to-transparent" />
-        <div className="absolute inset-0" style={{
-          background: "linear-gradient(to bottom, rgba(88, 28, 135, 0.06) 0%, rgba(0,0,0,0.4) 100%)",
-        }} />
-      </div>
+      {/* Footer: terminal + decorations */}
+      <div className="relative z-10 h-32 shrink-0 flex items-end px-4 pb-4">
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-500/20 to-transparent" />
+        <TerminalFeed />
 
-      {/* Torii gate silhouette — right */}
-      <svg className="absolute bottom-32 right-8 z-0 text-red-400 opacity-[0.07]" width="90" height="110" viewBox="0 0 80 100">
-        <rect x="8" y="20" width="6" height="80" fill="currentColor" />
-        <rect x="66" y="20" width="6" height="80" fill="currentColor" />
-        <rect x="0" y="10" width="80" height="6" rx="2" fill="currentColor" />
-        <rect x="4" y="20" width="72" height="4" fill="currentColor" />
-      </svg>
+        {/* Torii gate */}
+        <svg className="absolute bottom-4 right-8 opacity-[0.06]" width="80" height="100" viewBox="0 0 80 100">
+          <rect x="8" y="20" width="6" height="80" fill="#ef4444" />
+          <rect x="66" y="20" width="6" height="80" fill="#ef4444" />
+          <rect x="0" y="10" width="80" height="6" rx="2" fill="#ef4444" />
+          <rect x="4" y="20" width="72" height="4" fill="#ef4444" />
+        </svg>
 
-      {/* Wave pattern — left */}
-      <svg className="absolute bottom-32 left-8 z-0 text-cyan-400 opacity-[0.06]" width="100" height="60" viewBox="0 0 80 60">
-        <path d="M0 20 Q10 5 20 20 Q30 35 40 20 Q50 5 60 20 Q70 35 80 20" fill="none" stroke="currentColor" strokeWidth="2" />
-        <path d="M0 35 Q10 20 20 35 Q30 50 40 35 Q50 20 60 35 Q70 50 80 35" fill="none" stroke="currentColor" strokeWidth="2" />
-        <path d="M0 50 Q10 35 20 50 Q30 65 40 50 Q50 35 60 50 Q70 65 80 50" fill="none" stroke="currentColor" strokeWidth="2" />
-      </svg>
-
-      <TerminalFeed />
-
-      {/* Status summary — top right */}
-      <div className="absolute top-5 right-5 z-10 flex items-center gap-3">
-        {agents.map((a) => {
-          const s = a.state?.status ?? "offline";
-          const c = STATUS_COLORS[s] ?? STATUS_COLORS.offline;
-          return (
-            <div key={a.config.id} className="flex items-center gap-1.5">
-              <div className={`w-2 h-2 rounded-full ${s === "working" || s === "thinking" ? "animate-pulse" : ""}`} style={{ backgroundColor: c }} />
-              <span className="text-[10px] text-zinc-400">{a.config.name}</span>
-            </div>
-          );
-        })}
+        {/* Wave pattern */}
+        <svg className="absolute bottom-4 left-[280px] opacity-[0.05]" width="100" height="40" viewBox="0 0 80 40">
+          <path d="M0 15 Q10 5 20 15 Q30 25 40 15 Q50 5 60 15 Q70 25 80 15" fill="none" stroke="#06b6d4" strokeWidth="2" />
+          <path d="M0 25 Q10 15 20 25 Q30 35 40 25 Q50 15 60 25 Q70 35 80 25" fill="none" stroke="#06b6d4" strokeWidth="2" />
+        </svg>
       </div>
     </div>
   );
