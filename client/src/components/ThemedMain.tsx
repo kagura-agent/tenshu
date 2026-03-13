@@ -33,7 +33,7 @@ export function ThemedMain({ children }: { children: ReactNode }) {
       {!isCommand && (
         <AnimatedCanvas theme={theme} intensity={0.15} />
       )}
-      <div className="relative z-10">
+      <div className="relative z-10 h-full">
         {children}
       </div>
     </main>
