@@ -122,7 +122,7 @@ export function ControlDeck({ agents, onSelectAgent, selectedAgentId }: ControlD
         backgroundImage: "url(/assets/backgrounds/command_deck_0.png)",
         backgroundSize: "cover",
         backgroundPosition: "center",
-        opacity: 0.4,
+        opacity: 0.5,
       }} />
       <AnimatedCanvas theme="deck" intensity={intensity} />
 

@@ -185,40 +185,20 @@ export function AnimatedCanvas({ theme, intensity, className }: AnimatedCanvasPr
     const w = canvas.width;
     const h = canvas.height;
 
-    // Clear with theme background
+    // Clear canvas — transparent so background image shows through
+    ctx.clearRect(0, 0, w, h);
+
     if (theme === "warroom") {
-      ctx.fillStyle = "#1a1410";
+      // Light translucent overlay for depth
+      ctx.fillStyle = "rgba(26, 20, 16, 0.15)";
       ctx.fillRect(0, 0, w, h);
-
-      // Subtle tatami gradient
-      const grad = ctx.createLinearGradient(0, 0, w, h);
-      grad.addColorStop(0, "rgba(42, 34, 21, 0.3)");
-      grad.addColorStop(0.5, "rgba(30, 26, 16, 0.2)");
-      grad.addColorStop(1, "rgba(42, 34, 21, 0.3)");
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, w, h);
-
-      // Grid pattern for tatami
-      ctx.strokeStyle = "rgba(60, 46, 30, 0.15)";
-      ctx.lineWidth = 1;
-      for (let x = 0; x < w; x += 120) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, h);
-        ctx.stroke();
-      }
-      for (let y = 0; y < h; y += 80) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(w, y);
-        ctx.stroke();
-      }
     } else {
-      ctx.fillStyle = "#08081a";
+      // Light translucent overlay + neon grid for cyberpunk feel
+      ctx.fillStyle = "rgba(8, 8, 26, 0.15)";
       ctx.fillRect(0, 0, w, h);
 
-      // Neon grid
-      ctx.strokeStyle = "rgba(6, 182, 212, 0.03)";
+      // Subtle neon grid
+      ctx.strokeStyle = "rgba(6, 182, 212, 0.04)";
       ctx.lineWidth = 1;
       for (let x = 0; x < w; x += 60) {
         ctx.beginPath();

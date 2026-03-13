@@ -92,7 +92,7 @@ export function WarRoom({ agents, onSelectAgent, selectedAgentId }: WarRoomProps
         backgroundImage: "url(/assets/backgrounds/warroom_0.png)",
         backgroundSize: "cover",
         backgroundPosition: "center",
-        opacity: 0.35,
+        opacity: 0.55,
       }} />
       {/* Animated particles on top of background */}
       <AnimatedCanvas theme="warroom" intensity={intensity} />

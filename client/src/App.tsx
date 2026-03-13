@@ -20,7 +20,7 @@ function App() {
           <main className="flex-1 overflow-auto p-6">
             <Routes>
               <Route path="/" element={<Dashboard />} />
-              <Route path="/office" element={<Office />} />
+              <Route path="/command" element={<Office />} />
               <Route path="/sessions" element={<Sessions />} />
               <Route path="/cron" element={<Cron />} />
               <Route path="/results" element={<Results />} />
