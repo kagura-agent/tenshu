@@ -12,6 +12,7 @@ import { Cron } from "./pages/Cron";
 import { Results } from "./pages/Results";
 import { System } from "./pages/System";
 import { Activity } from "./pages/Activity";
+import { Knowledge } from "./pages/Knowledge";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +34,7 @@ function App() {
                   <Route path="/results" element={<Results />} />
                   <Route path="/system" element={<System />} />
                   <Route path="/activity" element={<Activity />} />
+                  <Route path="/knowledge" element={<Knowledge />} />
                 </Routes>
               </ThemedMain>
             </div>

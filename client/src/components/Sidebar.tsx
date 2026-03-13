@@ -1,9 +1,10 @@
 import { useCallback } from "react";
 import { NavLink } from "react-router-dom";
-import { LayoutDashboard, Swords, Monitor, Clock, FlaskConical, Cpu, Activity, Volume2, VolumeX } from "lucide-react";
+import { LayoutDashboard, Swords, Monitor, Clock, FlaskConical, Cpu, Activity, Volume2, VolumeX, BookOpen } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
 import type { ThemeMode } from "@/hooks/useTheme";
 import { useSound } from "@/hooks/useSound";
+import { NotificationBell } from "@/components/NotificationBell";
 
 const navItems = [
   { to: "/", icon: LayoutDashboard, label: "Dashboard" },
@@ -12,6 +13,7 @@ const navItems = [
   { to: "/cron", icon: Clock, label: "Cron Jobs" },
   { to: "/results", icon: FlaskConical, label: "Results" },
   { to: "/activity", icon: Activity, label: "Activity" },
+  { to: "/knowledge", icon: BookOpen, label: "Knowledge" },
   { to: "/system", icon: Cpu, label: "System" },
 ];
 
@@ -109,6 +111,7 @@ export function Sidebar() {
 
       <div className="p-4 flex items-center justify-between" style={{ borderTop: `1px solid ${config.border}` }}>
         <div className="text-xs text-zinc-600">Tenshu v0.1.0</div>
+        <NotificationBell accent={config.accent} />
         <button
           onClick={toggleMute}
           className="p-1.5 rounded-md transition-colors hover:bg-white/5"

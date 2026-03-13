@@ -8,4 +8,18 @@ dist/
 .env.local
 *.tsbuildinfo
 *.log
+
+# tsc -b build artifacts (source is .ts/.tsx only)
+**/*.d.ts
+**/*.d.ts.map
+client/src/**/*.js
+client/src/**/*.js.map
+server/src/**/*.js
+server/src/**/*.js.map
+shared/src/**/*.js
+shared/src/**/*.js.map
+*.js.map
+tenshu.config.js
+tenshu.config.d.ts
+tenshu.config.d.ts.map
 docs/social/
