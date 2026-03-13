@@ -45,21 +45,21 @@
 - [x] Visual XP progress bar on agent cards
 - [x] Level badge next to agent name (color-coded per tier)
 
-## Phase 3 — Enhanced Results Page (Medium Effort, High Impact)
+## Phase 3 — Enhanced Results Page (DONE)
 
 ### 3.1 Per-Agent Filtering
-- [ ] Add agent filter dropdown/tabs to Results page
-- [ ] Show all agents, not just coder
-- [ ] Per-agent stats cards
+- [x] Add agent filter tabs to Results page header
+- [x] Show all agents, not just coder
+- [x] Stats cards update based on filter selection
 
 ### 3.2 Score Ratchet Visualization
-- [ ] Line chart with score trend + ratchet floor line
-- [ ] Visual markers when floor advances
-- [ ] Replace current basic bar chart
+- [x] SVG line chart with score trend + dashed ratchet floor line
+- [x] Color-coded dots (green=8+, accent=6+, amber=4+, red=low)
+- [x] Legend for score line vs ratchet floor
 
 ### 3.3 Task Type Breakdown
-- [ ] Bar chart showing average score per task type
-- [ ] Which tasks produce best results?
+- [x] Horizontal bar chart showing average score per task type
+- [x] Sorted by avg score, color-coded bars, count indicator
 
 ## Phase 4 — Achievement System (Medium Effort, High Wow)
 
