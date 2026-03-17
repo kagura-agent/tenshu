@@ -9,46 +9,55 @@ Real-time dashboard for [OpenClaw](https://github.com/openclaw) AI agent teams. 
 ## Screenshots
 
 ### Command Center — War Room (作戦室)
+
 AI-generated anime character portraits, per-agent task history with score trend sparklines, dust mote/firefly particles, and a Japanese dojo background.
 
 ![War Room](docs/screenshots/war-room.png)
 
 ### Command Center — Control Deck (指令台)
+
 Cyberpunk-themed mission control with neon grid, CRT scan lines, live terminal feed, agent monitor stations, and rising energy particles.
 
 ![Control Deck](docs/screenshots/control-deck.png)
 
 ### Command Center — Zen Garden (枯山水)
+
 Peaceful cherry blossom theme with falling sakura petals, pink/stone palette, zen rock garden background, and frosted glass agent cards.
 
 ![Zen Garden](docs/screenshots/zen-garden.png)
 
 ### Dashboard
+
 Live agent status cards with WebSocket connection indicator, model info, and real-time activity feed. Themed to match the active global theme.
 
 ![Dashboard](docs/screenshots/dashboard.png)
 
 ### Results Log
+
 Experiment results from orchestrator cycles — score trends, keep/discard ratcheting, success rate stats. Based on the [Karpathy autoresearch](https://github.com/karpathy/autoresearch) pattern.
 
 ![Results](docs/screenshots/results.png)
 
 ### Activity Feed
+
 Real-time orchestrator output, per-agent logs with timestamps, and research artifact previews.
 
 ![Activity](docs/screenshots/activity.png)
 
 ### Knowledge Browser
+
 Searchable artifact library with type filtering, stats dashboard, agent attribution, and click-to-expand content viewer.
 
 ![Knowledge](docs/screenshots/knowledge.png)
 
 ### Agent Interaction Map
+
 Force-directed graph showing agent delegation flow with animated particles, delegation counts, and per-connection average scores.
 
 ![Interactions](docs/screenshots/interactions.png)
 
 ### System Monitor
+
 Live GPU/CPU/RAM/disk metrics, loaded Ollama models, and system uptime.
 
 ![System](docs/screenshots/system.png)
@@ -120,15 +129,16 @@ Create `tenshu.config.ts` in the project root to customize:
 
 ```ts
 export default {
-  openclawDir: "~/.openclaw",  // Path to OpenClaw config
-  port: 3001,                   // API server port
-  clientPort: 5173,             // Client dev server port
-  theme: "dark",                // dark | light | system
-  accentColor: "#ff6b35",       // UI accent color
-};
+  openclawDir: '~/.openclaw', // Path to OpenClaw config
+  port: 3001, // API server port
+  clientPort: 5173, // Client dev server port
+  theme: 'dark', // dark | light | system
+  accentColor: '#ff6b35', // UI accent color
+}
 ```
 
 Environment variables:
+
 - `OPENCLAW_DIR` — Override config directory (default: `~/.openclaw`)
 - `TENSHU_PORT` — Override server port (default: `3001`)
 - `RESULTS_TSV` — Override results.tsv path (default: `~/clawd/team/knowledge/results.tsv`)
@@ -147,16 +157,16 @@ tenshu/
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
-| Client | Vite, React 19, Tailwind CSS v4, Shadcn/ui |
-| Command Views | HTML Canvas particles, Web Audio synthesis, AI-generated art (Flux Schnell) |
-| Server | Hono, WebSocket, chokidar |
-| Real-time | WebSocket (bidirectional) |
-| Monorepo | npm workspaces |
-| Deployment | Docker, docker compose |
-| Testing | Vitest, Testing Library |
-| Art Generation | ComfyUI + Flux Schnell (local GPU) |
+| Layer          | Technology                                                                  |
+| -------------- | --------------------------------------------------------------------------- |
+| Client         | Vite, React 19, Tailwind CSS v4, Shadcn/ui                                  |
+| Command Views  | HTML Canvas particles, Web Audio synthesis, AI-generated art (Flux Schnell) |
+| Server         | Hono, WebSocket, chokidar                                                   |
+| Real-time      | WebSocket (bidirectional)                                                   |
+| Monorepo       | npm workspaces                                                              |
+| Deployment     | Docker, docker compose                                                      |
+| Testing        | Vitest, Testing Library                                                     |
+| Art Generation | ComfyUI + Flux Schnell (local GPU)                                          |
 
 ## License
 

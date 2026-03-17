@@ -45,12 +45,14 @@ npm run dev
 
 ### Other Commands
 
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start client + server concurrently |
-| `npm run build` | Build server then client |
-| `npm test` | Run vitest across all workspaces |
-| `npm run lint -w client` | Lint the client workspace |
+| Command                  | Description                        |
+| ------------------------ | ---------------------------------- |
+| `npm run dev`            | Start client + server concurrently |
+| `npm run build`          | Build server then client           |
+| `npm test`               | Run vitest across all workspaces   |
+| `npm run format`         | Format all files with Prettier     |
+| `npm run format:check`   | Check formatting (used in CI)      |
+| `npm run lint -w client` | Lint the client workspace          |
 
 ### Docker
 

@@ -1,26 +1,26 @@
-import { useState, useEffect } from "react";
-import { useWebSocket } from "@/hooks/useWebSocket";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { useState, useEffect } from 'react'
+import { useWebSocket } from '@/hooks/useWebSocket'
+import { ScrollArea } from '@/components/ui/scroll-area'
 
 interface ActivityItem {
-  id: string;
-  text: string;
-  timestamp: string;
-  type: "activity" | "status";
+  id: string
+  text: string
+  timestamp: string
+  type: 'activity' | 'status'
 }
 
 export function ActivityFeed() {
-  const [items, setItems] = useState<ActivityItem[]>([]);
-  const { subscribe } = useWebSocket();
+  const [items, setItems] = useState<ActivityItem[]>([])
+  const { subscribe } = useWebSocket()
 
   useEffect(() => {
     return subscribe((msg) => {
-      if (msg.type === "agent:activity" || msg.type === "agent:status") {
-        const payload = msg.payload as Record<string, unknown>;
+      if (msg.type === 'agent:activity' || msg.type === 'agent:status') {
+        const payload = msg.payload as Record<string, unknown>
         const text =
-          msg.type === "agent:activity"
-            ? `${payload.agentId}: ${payload.event} — ${(payload.path as string)?.split("/").pop() || ""}`
-            : `${payload.id}: status → ${payload.status}`;
+          msg.type === 'agent:activity'
+            ? `${payload.agentId}: ${payload.event} — ${(payload.path as string)?.split('/').pop() || ''}`
+            : `${payload.id}: status → ${payload.status}`
 
         setItems((prev) => {
           const next = [
@@ -28,23 +28,29 @@ export function ActivityFeed() {
               id: `${Date.now()}-${Math.random()}`,
               text,
               timestamp: msg.timestamp,
-              type: msg.type === "agent:activity" ? "activity" as const : "status" as const,
+              type:
+                msg.type === 'agent:activity'
+                  ? ('activity' as const)
+                  : ('status' as const),
             },
             ...prev,
-          ];
-          return next.slice(0, 50);
-        });
+          ]
+          return next.slice(0, 50)
+        })
       }
-    });
-  }, [subscribe]);
+    })
+  }, [subscribe])
 
   const formatTime = (iso: string) => {
     try {
-      return new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      return new Date(iso).toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+      })
     } catch {
-      return "--:--";
+      return '--:--'
     }
-  };
+  }
 
   return (
     <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 h-full">
@@ -56,7 +62,9 @@ export function ActivityFeed() {
           <div className="space-y-2">
             {items.map((item) => (
               <div key={item.id} className="text-sm">
-                <span className="text-emerald-500">{formatTime(item.timestamp)}</span>{" "}
+                <span className="text-emerald-500">
+                  {formatTime(item.timestamp)}
+                </span>{' '}
                 <span className="text-zinc-300">{item.text}</span>
               </div>
             ))}
@@ -64,5 +72,5 @@ export function ActivityFeed() {
         )}
       </ScrollArea>
     </div>
-  );
+  )
 }

@@ -3,61 +3,70 @@
  * Images generated with Flux Schnell via ComfyUI.
  */
 
-import { useAvatarConfig } from "@/hooks/useAvatarConfig";
+import { useAvatarConfig } from '@/hooks/useAvatarConfig'
 
 interface SpriteProps {
-  size?: number;
-  glow?: string;
-  className?: string;
-  isActive?: boolean;
+  size?: number
+  glow?: string
+  className?: string
+  isActive?: boolean
 }
 
 interface AgentSpriteProps extends SpriteProps {
-  agentId: string;
-  agentName: string;
+  agentId: string
+  agentName: string
 }
 
 // Map agent roles to character image files
 const ROLE_IMAGES: Record<string, string> = {
-  planner: "/assets/characters/strategist_0.png",
-  researcher: "/assets/characters/scientist_0.png",
-  coder: "/assets/characters/engineer_0.png",
-  qa: "/assets/characters/guardian_0.png",
-  comms: "/assets/characters/messenger_0.png",
-  leader: "/assets/characters/commander_0.png",
-};
-
-// Fallback for unknown roles
-const DEFAULT_IMAGE = "/assets/characters/ronin_0.png";
-
-function guessRoleForSprite(agentId: string, agentName: string): string {
-  const id = agentId.toLowerCase();
-  const name = agentName.toLowerCase();
-  for (const role of ["planner", "researcher", "coder", "qa", "comms"]) {
-    if (id.includes(role) || name.includes(role)) return role;
-  }
-  if (name.includes("erwin") || name.includes("atlas")) return "planner";
-  if (name.includes("senku") || name.includes("scout")) return "researcher";
-  if (name.includes("bulma") || name.includes("forge")) return "coder";
-  if (name.includes("vegeta") || name.includes("lens")) return "qa";
-  if (name.includes("jet") || name.includes("herald")) return "comms";
-  if (name.includes("claw") || name.includes("shogun")) return "leader";
-  return "coder";
+  planner: '/assets/characters/strategist_0.png',
+  researcher: '/assets/characters/scientist_0.png',
+  coder: '/assets/characters/engineer_0.png',
+  qa: '/assets/characters/guardian_0.png',
+  comms: '/assets/characters/messenger_0.png',
+  leader: '/assets/characters/commander_0.png',
 }
 
-export function AgentSprite({ agentId, agentName, size = 64, glow, className, isActive }: AgentSpriteProps) {
-  const { data: avatarConfig } = useAvatarConfig();
-  const role = guessRoleForSprite(agentId, agentName);
-  const customImage = avatarConfig?.[agentId];
-  const src = customImage || ROLE_IMAGES[role] || DEFAULT_IMAGE;
+// Fallback for unknown roles
+const DEFAULT_IMAGE = '/assets/characters/ronin_0.png'
+
+function guessRoleForSprite(agentId: string, agentName: string): string {
+  const id = agentId.toLowerCase()
+  const name = agentName.toLowerCase()
+  for (const role of ['planner', 'researcher', 'coder', 'qa', 'comms']) {
+    if (id.includes(role) || name.includes(role)) return role
+  }
+  if (name.includes('erwin') || name.includes('atlas')) return 'planner'
+  if (name.includes('senku') || name.includes('scout')) return 'researcher'
+  if (name.includes('bulma') || name.includes('forge')) return 'coder'
+  if (name.includes('vegeta') || name.includes('lens')) return 'qa'
+  if (name.includes('jet') || name.includes('herald')) return 'comms'
+  if (name.includes('claw') || name.includes('shogun')) return 'leader'
+  return 'coder'
+}
+
+export function AgentSprite({
+  agentId,
+  agentName,
+  size = 64,
+  glow,
+  className,
+  isActive,
+}: AgentSpriteProps) {
+  const { data: avatarConfig } = useAvatarConfig()
+  const role = guessRoleForSprite(agentId, agentName)
+  const customImage = avatarConfig?.[agentId]
+  const src = customImage || ROLE_IMAGES[role] || DEFAULT_IMAGE
 
   return (
     <div
-      className={`relative shrink-0 ${className || ""}`}
+      className={`relative shrink-0 ${className || ''}`}
       style={{
         width: size,
         height: size,
-        filter: glow ? `drop-shadow(0 0 10px ${glow}) drop-shadow(0 0 20px ${glow}40)` : undefined,
+        filter: glow
+          ? `drop-shadow(0 0 10px ${glow}) drop-shadow(0 0 20px ${glow}40)`
+          : undefined,
       }}
     >
       <img
@@ -65,9 +74,9 @@ export function AgentSprite({ agentId, agentName, size = 64, glow, className, is
         alt={agentName}
         width={size}
         height={size}
-        className={`rounded-lg object-cover ${isActive ? "animate-subtle-bounce" : ""}`}
+        className={`rounded-lg object-cover ${isActive ? 'animate-subtle-bounce' : ''}`}
         style={{
-          imageRendering: "auto",
+          imageRendering: 'auto',
         }}
       />
       {/* Active indicator overlay */}
@@ -82,5 +91,5 @@ export function AgentSprite({ agentId, agentName, size = 64, glow, className, is
         />
       )}
     </div>
-  );
+  )
 }

@@ -1,0 +1,11 @@
+dist/
+node_modules/
+*.db
+*.db-shm
+*.db-wal
+*.tsbuildinfo
+*.log
+**/*.d.ts
+**/*.d.ts.map
+**/*.js.map
+docs/social/
