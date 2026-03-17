@@ -35,6 +35,10 @@ cd tenshu
 # Install all dependencies (workspaces are linked automatically)
 npm install
 
+# (Optional) Configure environment variables
+cp .env.example .env
+# Edit .env to match your setup — see .env.example for available variables
+
 # Start both client and server in dev mode
 npm run dev
 ```
