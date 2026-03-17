@@ -1,38 +1,38 @@
-import type { WSContext } from "hono/ws";
-import type { WSMessage } from "@tenshu/shared";
+import type { WSContext } from 'hono/ws'
+import type { WSMessage } from '@tenshu/shared'
 
-const clients = new Set<WSContext>();
+const clients = new Set<WSContext>()
 
 export function addClient(ws: WSContext): void {
-  clients.add(ws);
+  clients.add(ws)
   const msg: WSMessage = {
-    type: "connected",
+    type: 'connected',
     payload: { clientCount: clients.size },
     timestamp: new Date().toISOString(),
-  };
-  ws.send(JSON.stringify(msg));
+  }
+  ws.send(JSON.stringify(msg))
 }
 
 export function removeClient(ws: WSContext): void {
-  clients.delete(ws);
+  clients.delete(ws)
 }
 
-export function broadcast(type: WSMessage["type"], payload: unknown): void {
+export function broadcast(type: WSMessage['type'], payload: unknown): void {
   const msg: WSMessage = {
     type,
     payload,
     timestamp: new Date().toISOString(),
-  };
-  const data = JSON.stringify(msg);
+  }
+  const data = JSON.stringify(msg)
   for (const client of clients) {
     try {
-      client.send(data);
+      client.send(data)
     } catch {
-      clients.delete(client);
+      clients.delete(client)
     }
   }
 }
 
 export function getClientCount(): number {
-  return clients.size;
+  return clients.size
 }

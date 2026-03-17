@@ -1,55 +1,91 @@
-import { useCallback } from "react";
-import { NavLink } from "react-router-dom";
-import { LayoutDashboard, Swords, Monitor, Clock, FlaskConical, Cpu, Activity, Volume2, VolumeX, BookOpen, GitBranch } from "lucide-react";
-import { useTheme } from "@/hooks/useTheme";
-import type { ThemeMode } from "@/hooks/useTheme";
-import { useSound } from "@/hooks/useSound";
-import { NotificationBell } from "@/components/NotificationBell";
+import { useCallback } from 'react'
+import { NavLink } from 'react-router-dom'
+import {
+  LayoutDashboard,
+  Swords,
+  Monitor,
+  Clock,
+  FlaskConical,
+  Cpu,
+  Activity,
+  Volume2,
+  VolumeX,
+  BookOpen,
+  GitBranch,
+} from 'lucide-react'
+import { useTheme } from '@/hooks/useTheme'
+import type { ThemeMode } from '@/hooks/useTheme'
+import { useSound } from '@/hooks/useSound'
+import { NotificationBell } from '@/components/NotificationBell'
 
 const navItems = [
-  { to: "/", icon: LayoutDashboard, label: "Dashboard" },
-  { to: "/command", icon: Swords, label: "Command" },
-  { to: "/sessions", icon: Monitor, label: "Sessions" },
-  { to: "/cron", icon: Clock, label: "Cron Jobs" },
-  { to: "/results", icon: FlaskConical, label: "Results" },
-  { to: "/activity", icon: Activity, label: "Activity" },
-  { to: "/knowledge", icon: BookOpen, label: "Knowledge" },
-  { to: "/interactions", icon: GitBranch, label: "Interactions" },
-  { to: "/system", icon: Cpu, label: "System" },
-];
+  { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
+  { to: '/command', icon: Swords, label: 'Command' },
+  { to: '/sessions', icon: Monitor, label: 'Sessions' },
+  { to: '/cron', icon: Clock, label: 'Cron Jobs' },
+  { to: '/results', icon: FlaskConical, label: 'Results' },
+  { to: '/activity', icon: Activity, label: 'Activity' },
+  { to: '/knowledge', icon: BookOpen, label: 'Knowledge' },
+  { to: '/interactions', icon: GitBranch, label: 'Interactions' },
+  { to: '/system', icon: Cpu, label: 'System' },
+]
 
-const THEME_CONFIG: Record<ThemeMode, { accent: string; bg: string; border: string; label: string }> = {
-  warroom: { accent: "#f59e0b", bg: "#1a1410", border: "rgba(180, 140, 80, 0.15)", label: "作戦室" },
-  deck: { accent: "#06b6d4", bg: "#08081a", border: "rgba(6, 182, 212, 0.15)", label: "指令台" },
-  garden: { accent: "#f472b6", bg: "#1a1018", border: "rgba(244, 114, 182, 0.15)", label: "庭園" },
-};
+const THEME_CONFIG: Record<
+  ThemeMode,
+  { accent: string; bg: string; border: string; label: string }
+> = {
+  warroom: {
+    accent: '#f59e0b',
+    bg: '#1a1410',
+    border: 'rgba(180, 140, 80, 0.15)',
+    label: '作戦室',
+  },
+  deck: {
+    accent: '#06b6d4',
+    bg: '#08081a',
+    border: 'rgba(6, 182, 212, 0.15)',
+    label: '指令台',
+  },
+  garden: {
+    accent: '#f472b6',
+    bg: '#1a1018',
+    border: 'rgba(244, 114, 182, 0.15)',
+    label: '庭園',
+  },
+}
 
 export function Sidebar() {
-  const { theme, setTheme } = useTheme();
-  const config = THEME_CONFIG[theme];
-  const { play, muted, setMuted } = useSound();
+  const { theme, setTheme } = useTheme()
+  const config = THEME_CONFIG[theme]
+  const { play, muted, setMuted } = useSound()
 
-  const handleThemeSwitch = useCallback((key: ThemeMode) => {
-    if (key !== theme) {
-      setTheme(key);
-      play("theme-switch");
-    }
-  }, [theme, setTheme, play]);
+  const handleThemeSwitch = useCallback(
+    (key: ThemeMode) => {
+      if (key !== theme) {
+        setTheme(key)
+        play('theme-switch')
+      }
+    },
+    [theme, setTheme, play],
+  )
 
   const toggleMute = useCallback(() => {
-    setMuted(!muted);
-  }, [muted, setMuted]);
+    setMuted(!muted)
+  }, [muted, setMuted])
 
   const themes: { key: ThemeMode; label: string }[] = [
-    { key: "warroom", label: "作戦室" },
-    { key: "deck", label: "指令台" },
-    { key: "garden", label: "庭園" },
-  ];
+    { key: 'warroom', label: '作戦室' },
+    { key: 'deck', label: '指令台' },
+    { key: 'garden', label: '庭園' },
+  ]
 
   return (
     <aside
       className="w-56 flex flex-col h-screen transition-colors duration-500"
-      style={{ background: config.bg, borderRight: `1px solid ${config.border}` }}
+      style={{
+        background: config.bg,
+        borderRight: `1px solid ${config.border}`,
+      }}
     >
       <div className="p-4 flex items-center gap-3">
         <div
@@ -63,24 +99,29 @@ export function Sidebar() {
 
       {/* Theme toggle */}
       <div className="px-3 mb-3">
-        <div className="flex gap-1 p-0.5 rounded-md" style={{ background: "rgba(255,255,255,0.05)" }}>
+        <div
+          className="flex gap-1 p-0.5 rounded-md"
+          style={{ background: 'rgba(255,255,255,0.05)' }}
+        >
           {themes.map(({ key, label }) => {
-            const tc = THEME_CONFIG[key];
-            const active = theme === key;
+            const tc = THEME_CONFIG[key]
+            const active = theme === key
             return (
               <button
                 key={key}
                 onClick={() => handleThemeSwitch(key)}
                 className="flex-1 px-1.5 py-1 rounded text-[9px] font-medium transition-all"
                 style={{
-                  background: active ? `${tc.accent}22` : "transparent",
-                  color: active ? tc.accent : "rgba(161, 161, 170, 0.6)",
-                  border: active ? `1px solid ${tc.accent}44` : "1px solid transparent",
+                  background: active ? `${tc.accent}22` : 'transparent',
+                  color: active ? tc.accent : 'rgba(161, 161, 170, 0.6)',
+                  border: active
+                    ? `1px solid ${tc.accent}44`
+                    : '1px solid transparent',
                 }}
               >
                 {label}
               </button>
-            );
+            )
           })}
         </div>
       </div>
@@ -90,12 +131,12 @@ export function Sidebar() {
           <NavLink
             key={to}
             to={to}
-            end={to === "/"}
+            end={to === '/'}
             className={({ isActive }) =>
               `flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors ${
                 isActive
-                  ? ""
-                  : "text-zinc-400 hover:text-zinc-100 hover:bg-white/5"
+                  ? ''
+                  : 'text-zinc-400 hover:text-zinc-100 hover:bg-white/5'
               }`
             }
             style={({ isActive }) =>
@@ -110,13 +151,16 @@ export function Sidebar() {
         ))}
       </nav>
 
-      <div className="p-4 flex items-center justify-between" style={{ borderTop: `1px solid ${config.border}` }}>
+      <div
+        className="p-4 flex items-center justify-between"
+        style={{ borderTop: `1px solid ${config.border}` }}
+      >
         <div className="text-xs text-zinc-600">Tenshu v0.1.0</div>
         <NotificationBell accent={config.accent} />
         <button
           onClick={toggleMute}
           className="p-1.5 rounded-md transition-colors hover:bg-white/5"
-          title={muted ? "Unmute sounds" : "Mute sounds"}
+          title={muted ? 'Unmute sounds' : 'Mute sounds'}
         >
           {muted ? (
             <VolumeX className="w-3.5 h-3.5 text-zinc-600" />
@@ -126,5 +170,5 @@ export function Sidebar() {
         </button>
       </div>
     </aside>
-  );
+  )
 }

@@ -1,21 +1,21 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ThemeProvider } from "./hooks/useTheme";
-import { DemoProvider } from "./hooks/useDemo";
-import { Sidebar } from "./components/Sidebar";
-import { ThemedMain } from "./components/ThemedMain";
-import { DemoBanner } from "./components/DemoBanner";
-import { Dashboard } from "./pages/Dashboard";
-import { Office } from "./pages/Office";
-import { Sessions } from "./pages/Sessions";
-import { Cron } from "./pages/Cron";
-import { Results } from "./pages/Results";
-import { System } from "./pages/System";
-import { Activity } from "./pages/Activity";
-import { Knowledge } from "./pages/Knowledge";
-import { Interactions } from "./pages/Interactions";
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { ThemeProvider } from './hooks/useTheme'
+import { DemoProvider } from './hooks/useDemo'
+import { Sidebar } from './components/Sidebar'
+import { ThemedMain } from './components/ThemedMain'
+import { DemoBanner } from './components/DemoBanner'
+import { Dashboard } from './pages/Dashboard'
+import { Office } from './pages/Office'
+import { Sessions } from './pages/Sessions'
+import { Cron } from './pages/Cron'
+import { Results } from './pages/Results'
+import { System } from './pages/System'
+import { Activity } from './pages/Activity'
+import { Knowledge } from './pages/Knowledge'
+import { Interactions } from './pages/Interactions'
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient()
 
 function App() {
   return (
@@ -44,7 +44,7 @@ function App() {
         </ThemeProvider>
       </DemoProvider>
     </QueryClientProvider>
-  );
+  )
 }
 
-export default App;
+export default App

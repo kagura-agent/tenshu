@@ -1,35 +1,34 @@
-import type { Agent } from "@tenshu/shared";
-import { STATUS_COLORS } from "@tenshu/shared";
-import { ThemedCard } from "@/components/ThemedCard";
-import { Badge } from "@/components/ui/badge";
-import { AgentSprite } from "@/office2d/sprites";
-import { useTheme } from "@/hooks/useTheme";
-import type { PowerLevel } from "@/hooks/usePowerLevel";
+import type { Agent } from '@tenshu/shared'
+import { STATUS_COLORS } from '@tenshu/shared'
+import { ThemedCard } from '@/components/ThemedCard'
+import { Badge } from '@/components/ui/badge'
+import { AgentSprite } from '@/office2d/sprites'
+import { useTheme } from '@/hooks/useTheme'
+import type { PowerLevel } from '@/hooks/usePowerLevel'
 
 const LEVEL_COLORS: Record<string, string> = {
-  Genin: "#71717a",
-  Chunin: "#22c55e",
-  Jonin: "#3b82f6",
-  Kage: "#a855f7",
-  Hokage: "#f59e0b",
-};
+  Genin: '#71717a',
+  Chunin: '#22c55e',
+  Jonin: '#3b82f6',
+  Kage: '#a855f7',
+  Hokage: '#f59e0b',
+}
 
 interface AgentCardProps {
-  agent: Agent;
-  power?: PowerLevel;
+  agent: Agent
+  power?: PowerLevel
 }
 
 export function AgentCard({ agent, power }: AgentCardProps) {
-  const { config, state, color } = agent;
-  const { theme } = useTheme();
-  const accent = theme === "warroom" ? "#f59e0b" : theme === "deck" ? "#06b6d4" : "#f472b6";
-  const statusColor = STATUS_COLORS[state.status] || STATUS_COLORS.offline;
-  const isActive = state.status === "working" || state.status === "thinking";
+  const { config, state, color } = agent
+  const { theme } = useTheme()
+  const accent =
+    theme === 'warroom' ? '#f59e0b' : theme === 'deck' ? '#06b6d4' : '#f472b6'
+  const statusColor = STATUS_COLORS[state.status] || STATUS_COLORS.offline
+  const isActive = state.status === 'working' || state.status === 'thinking'
 
   return (
-    <ThemedCard
-      style={{ borderLeftWidth: "3px", borderLeftColor: color }}
-    >
+    <ThemedCard style={{ borderLeftWidth: '3px', borderLeftColor: color }}>
       <div className="flex items-center gap-3">
         <AgentSprite
           agentId={config.id}
@@ -75,7 +74,10 @@ export function AgentCard({ agent, power }: AgentCardProps) {
                 <span className="text-[10px] text-zinc-500 font-mono">
                   PL:{power.powerLevel}
                 </span>
-                <div className="flex-1 max-w-24 h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.05)" }}>
+                <div
+                  className="flex-1 max-w-24 h-1.5 rounded-full overflow-hidden"
+                  style={{ background: 'rgba(255,255,255,0.05)' }}
+                >
                   <div
                     className="h-full rounded-full transition-all"
                     style={{
@@ -93,5 +95,5 @@ export function AgentCard({ agent, power }: AgentCardProps) {
         </div>
       </div>
     </ThemedCard>
-  );
+  )
 }

@@ -1,16 +1,16 @@
-import { useRef } from "react";
-import { X, Upload } from "lucide-react";
+import { useRef } from 'react'
+import { X, Upload } from 'lucide-react'
 import {
   useAvailableAvatars,
   useSetAvatar,
   useUploadAvatar,
-} from "@/hooks/useAvatarConfig";
+} from '@/hooks/useAvatarConfig'
 
 interface AvatarPickerProps {
-  agentId: string;
-  agentName: string;
-  currentImage: string;
-  onClose: () => void;
+  agentId: string
+  agentName: string
+  currentImage: string
+  onClose: () => void
 }
 
 export function AvatarPicker({
@@ -19,26 +19,26 @@ export function AvatarPicker({
   currentImage,
   onClose,
 }: AvatarPickerProps) {
-  const { data: available = [] } = useAvailableAvatars();
-  const setAvatar = useSetAvatar();
-  const uploadAvatar = useUploadAvatar();
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { data: available = [] } = useAvailableAvatars()
+  const setAvatar = useSetAvatar()
+  const uploadAvatar = useUploadAvatar()
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   function handleSelect(image: string) {
-    setAvatar.mutate({ agentId, image }, { onSuccess: () => onClose() });
+    setAvatar.mutate({ agentId, image }, { onSuccess: () => onClose() })
   }
 
   function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    uploadAvatar.mutate({ agentId, file }, { onSuccess: () => onClose() });
+    const file = e.target.files?.[0]
+    if (!file) return
+    uploadAvatar.mutate({ agentId, file }, { onSuccess: () => onClose() })
   }
 
   return (
     <div
       className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm"
       onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
+        if (e.target === e.currentTarget) onClose()
       }}
     >
       <div className="bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl w-full max-w-lg mx-4 max-h-[80vh] flex flex-col">
@@ -64,8 +64,8 @@ export function AvatarPicker({
                 onClick={() => handleSelect(image)}
                 className={`relative rounded-lg overflow-hidden border-2 transition-all hover:scale-105 ${
                   image === currentImage
-                    ? "border-blue-500 ring-2 ring-blue-500/40"
-                    : "border-zinc-700 hover:border-zinc-500"
+                    ? 'border-blue-500 ring-2 ring-blue-500/40'
+                    : 'border-zinc-700 hover:border-zinc-500'
                 }`}
               >
                 <img
@@ -93,10 +93,10 @@ export function AvatarPicker({
             className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 rounded-lg transition-colors disabled:opacity-50"
           >
             <Upload size={16} />
-            {uploadAvatar.isPending ? "Uploading..." : "Upload Custom Image"}
+            {uploadAvatar.isPending ? 'Uploading...' : 'Upload Custom Image'}
           </button>
         </div>
       </div>
     </div>
-  );
+  )
 }

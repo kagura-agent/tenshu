@@ -1,15 +1,15 @@
-import { Hono } from "hono";
-import { listSessions } from "../openclaw/cli.js";
+import { Hono } from 'hono'
+import { listSessions } from '../openclaw/cli.js'
 
-const sessions = new Hono();
+const sessions = new Hono()
 
-sessions.get("/", async (c) => {
+sessions.get('/', async (c) => {
   try {
-    const data = await listSessions();
-    return c.json(data);
+    const data = await listSessions()
+    return c.json(data)
   } catch (e) {
-    return c.json({ error: (e as Error).message }, 500);
+    return c.json({ error: (e as Error).message }, 500)
   }
-});
+})
 
-export default sessions;
+export default sessions

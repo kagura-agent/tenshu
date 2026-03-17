@@ -1,29 +1,30 @@
-import { useQuery } from "@tanstack/react-query";
-import type { Session } from "@tenshu/shared";
-import { ThemedPageHeader } from "@/components/ThemedPageHeader";
-import { ThemedCard } from "@/components/ThemedCard";
-import { Badge } from "@/components/ui/badge";
-import { useTheme } from "@/hooks/useTheme";
+import { useQuery } from '@tanstack/react-query'
+import type { Session } from '@tenshu/shared'
+import { ThemedPageHeader } from '@/components/ThemedPageHeader'
+import { ThemedCard } from '@/components/ThemedCard'
+import { Badge } from '@/components/ui/badge'
+import { useTheme } from '@/hooks/useTheme'
 
 export function Sessions() {
-  const { theme } = useTheme();
-  const accent = theme === "warroom" ? "#f59e0b" : theme === "deck" ? "#06b6d4" : "#f472b6";
+  const { theme } = useTheme()
+  const accent =
+    theme === 'warroom' ? '#f59e0b' : theme === 'deck' ? '#06b6d4' : '#f472b6'
 
   const { data: sessions = [], isLoading } = useQuery<Session[]>({
-    queryKey: ["sessions"],
-    queryFn: () => fetch("/api/sessions").then((r) => r.json()),
+    queryKey: ['sessions'],
+    queryFn: () => fetch('/api/sessions').then((r) => r.json()),
     refetchInterval: 10000,
-  });
+  })
 
-  const totalCost = sessions.reduce((sum, s) => sum + s.cost, 0);
-  const totalTokens = sessions.reduce((sum, s) => sum + s.totalTokens, 0);
+  const totalCost = sessions.reduce((sum, s) => sum + s.cost, 0)
+  const totalTokens = sessions.reduce((sum, s) => sum + s.totalTokens, 0)
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full">
         <p className="text-zinc-400">Loading sessions...</p>
       </div>
-    );
+    )
   }
 
   return (
@@ -33,18 +34,30 @@ export function Sessions() {
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4">
         <ThemedCard>
-          <p className="text-xs text-zinc-500 uppercase tracking-wider">Active</p>
-          <p className="text-2xl font-bold" style={{ color: accent }}>{sessions.length}</p>
+          <p className="text-xs text-zinc-500 uppercase tracking-wider">
+            Active
+          </p>
+          <p className="text-2xl font-bold" style={{ color: accent }}>
+            {sessions.length}
+          </p>
           <p className="text-xs text-zinc-500">sessions</p>
         </ThemedCard>
         <ThemedCard>
-          <p className="text-xs text-zinc-500 uppercase tracking-wider">Total Cost</p>
-          <p className="text-2xl font-bold text-zinc-100">${totalCost.toFixed(4)}</p>
+          <p className="text-xs text-zinc-500 uppercase tracking-wider">
+            Total Cost
+          </p>
+          <p className="text-2xl font-bold text-zinc-100">
+            ${totalCost.toFixed(4)}
+          </p>
           <p className="text-xs text-zinc-500">this period</p>
         </ThemedCard>
         <ThemedCard>
-          <p className="text-xs text-zinc-500 uppercase tracking-wider">Tokens</p>
-          <p className="text-2xl font-bold text-zinc-100">{totalTokens.toLocaleString()}</p>
+          <p className="text-xs text-zinc-500 uppercase tracking-wider">
+            Tokens
+          </p>
+          <p className="text-2xl font-bold text-zinc-100">
+            {totalTokens.toLocaleString()}
+          </p>
           <p className="text-xs text-zinc-500">total consumed</p>
         </ThemedCard>
       </div>
@@ -61,9 +74,15 @@ export function Sessions() {
                     {session.agentId}
                   </span>
                   {session.label && (
-                    <span className="text-sm text-zinc-400">{session.label}</span>
+                    <span className="text-sm text-zinc-400">
+                      {session.label}
+                    </span>
                   )}
-                  <Badge variant="outline" className="text-xs" style={{ borderColor: `${accent}44`, color: accent }}>
+                  <Badge
+                    variant="outline"
+                    className="text-xs"
+                    style={{ borderColor: `${accent}44`, color: accent }}
+                  >
                     {session.model}
                   </Badge>
                 </div>
@@ -88,5 +107,5 @@ export function Sessions() {
         </div>
       )}
     </div>
-  );
+  )
 }

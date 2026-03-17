@@ -2,7 +2,7 @@ services:
   tenshu:
     build: .
     ports:
-      - "3001:3001"
+      - '3001:3001'
     environment:
       - TENSHU_PORT=3001
       # Mount your openclaw config for real data, or omit for demo mode
