@@ -17,6 +17,7 @@ import interactionRoutes from './routes/interactions.js'
 import notificationRoutes from './routes/notifications.js'
 import { addClient, removeClient } from './ws/handler.js'
 import { startGatewayPoller, startWorkspaceWatchers } from './ws/watchers.js'
+import { validateDirectories } from './startup.js'
 
 const openclawDir = process.env.OPENCLAW_DIR || DEFAULT_OPENCLAW_DIR
 let demoMode = false
@@ -35,13 +36,21 @@ try {
   demoMode = true
 }
 
+const directoryWarnings = validateDirectories()
+
 const app = new Hono()
 const { injectWebSocket, upgradeWebSocket } = createNodeWebSocket({ app })
 
 app.use('/*', cors())
 
 app.get('/api/health', (c) =>
-  c.json({ status: 'ok', name: 'tenshu', version: '0.1.0', demo: demoMode }),
+  c.json({
+    status: 'ok',
+    name: 'tenshu',
+    version: '0.1.0',
+    demo: demoMode,
+    directoryWarnings: directoryWarnings.length,
+  }),
 )
 
 app.route('/api/agents', agentRoutes)
