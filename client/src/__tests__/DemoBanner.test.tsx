@@ -32,5 +32,6 @@ describe('DemoBanner', () => {
       'https://github.com/JesseRWeigel/tenshu',
     )
     expect(link?.getAttribute('target')).toBe('_blank')
+    expect(link?.getAttribute('rel')).toBe('noopener noreferrer')
   })
 })
