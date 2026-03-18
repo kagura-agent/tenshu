@@ -106,10 +106,11 @@ export function AnimatedCanvas({
   const gridCanvasRef = useRef<HTMLCanvasElement | null>(null)
   const lastSizeRef = useRef({ w: 0, h: 0 })
   const lastFrameTimeRef = useRef(0)
+  const animateRef = useRef<((timestamp: number) => void) | null>(null)
 
   const animate = useCallback(
     (timestamp: number) => {
-      frameRef.current = requestAnimationFrame(animate)
+      frameRef.current = requestAnimationFrame((ts) => animateRef.current?.(ts))
 
       // Throttle to TARGET_FPS
       const elapsed = timestamp - lastFrameTimeRef.current
@@ -254,6 +255,10 @@ export function AnimatedCanvas({
     },
     [theme, intensity],
   )
+
+  useEffect(() => {
+    animateRef.current = animate
+  }, [animate])
 
   useEffect(() => {
     const canvas = canvasRef.current

@@ -4,9 +4,7 @@ import { ThemedCard } from '../components/ThemedCard'
 
 describe('ThemedCard', () => {
   it('renders children', () => {
-    const { getByText } = renderWithTheme(
-      <ThemedCard>Hello World</ThemedCard>,
-    )
+    const { getByText } = renderWithTheme(<ThemedCard>Hello World</ThemedCard>)
     expect(getByText('Hello World')).toBeTruthy()
   })
 
@@ -35,9 +33,7 @@ describe('ThemedCard', () => {
   })
 
   it('does not set cursor when onClick is absent', () => {
-    const { container } = renderWithTheme(
-      <ThemedCard>Static</ThemedCard>,
-    )
+    const { container } = renderWithTheme(<ThemedCard>Static</ThemedCard>)
     const card = container.firstElementChild as HTMLElement
     // cursor should be empty or undefined, not 'pointer'
     expect(card.style.cursor).not.toBe('pointer')
@@ -54,18 +50,14 @@ describe('ThemedCard', () => {
   })
 
   it('applies glow box-shadow when glow prop is true', () => {
-    const { container } = renderWithTheme(
-      <ThemedCard glow>Glowing</ThemedCard>,
-    )
+    const { container } = renderWithTheme(<ThemedCard glow>Glowing</ThemedCard>)
     const card = container.firstElementChild as HTMLElement
     // When glow is true the box-shadow contains the border color (0 0 20px ...)
     expect(card.style.boxShadow).toContain('20px')
   })
 
   it('applies standard box-shadow when glow is false', () => {
-    const { container } = renderWithTheme(
-      <ThemedCard>Normal</ThemedCard>,
-    )
+    const { container } = renderWithTheme(<ThemedCard>Normal</ThemedCard>)
     const card = container.firstElementChild as HTMLElement
     expect(card.style.boxShadow).toContain('rgba(0')
   })
