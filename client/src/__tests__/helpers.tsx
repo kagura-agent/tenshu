@@ -50,15 +50,16 @@ export function makeAgent(overrides?: {
   color?: string
   emoji?: string
 }): Agent {
+  const configId = overrides?.config?.id ?? 'test-agent'
   return {
     config: {
-      id: 'test-agent',
+      id: configId,
       name: 'Test Agent',
       workspace: '/tmp/test',
       ...overrides?.config,
     },
     state: {
-      id: overrides?.config?.id ?? 'test-agent',
+      id: configId,
       status: 'idle',
       ...overrides?.state,
     },
