@@ -21,9 +21,13 @@ export function validateDirectories(): DirectoryWarning[] {
     const openclawDir = resolvePath(
       process.env.OPENCLAW_DIR || DEFAULT_OPENCLAW_DIR,
     )
-    const teamDir = process.env.TEAM_DIR || `${homedir()}/clawd/team`
-    const resultsTsv =
-      process.env.RESULTS_TSV || `${homedir()}/clawd/team/knowledge/results.tsv`
+    const teamDir = resolvePath(
+      process.env.TEAM_DIR || `${process.env.HOME}/clawd/team`,
+    )
+    const resultsTsv = resolvePath(
+      process.env.RESULTS_TSV ||
+        `${process.env.HOME}/clawd/team/knowledge/results.tsv`,
+    )
 
     const checks: Array<{ label: string; path: string }> = [
       { label: 'OPENCLAW_DIR', path: openclawDir },
