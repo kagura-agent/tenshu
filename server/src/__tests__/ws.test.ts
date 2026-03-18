@@ -239,7 +239,7 @@ describe("WebSocket handler", () => {
     });
   });
 
-  describe("malformed message handling", () => {
+  describe("message serialization", () => {
     it("broadcast handles all WSMessage types", async () => {
       const { addClient, broadcast } = await loadHandler();
       const ws = createMockWS();
