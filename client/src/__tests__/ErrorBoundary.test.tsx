@@ -62,7 +62,13 @@ describe('ErrorBoundary', () => {
   })
 
   it('renders custom fallback when provided', () => {
-    function CustomFallback({ error, resetError }: { error: Error; resetError: () => void }) {
+    function CustomFallback({
+      error,
+      resetError,
+    }: {
+      error: Error
+      resetError: () => void
+    }) {
       return (
         <div>
           <span>Custom: {error.message}</span>

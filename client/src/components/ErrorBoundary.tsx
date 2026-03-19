@@ -5,7 +5,10 @@ interface PageErrorFallbackProps {
   resetError: () => void
 }
 
-export function PageErrorFallback({ error, resetError }: PageErrorFallbackProps) {
+export function PageErrorFallback({
+  error,
+  resetError,
+}: PageErrorFallbackProps) {
   const isDev = import.meta.env.DEV
 
   return (
