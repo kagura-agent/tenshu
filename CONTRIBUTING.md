@@ -107,6 +107,16 @@ refactor: extract WebSocket handler into separate module
 
 Please read and follow our [Code of Conduct](CODE_OF_CONDUCT.md).
 
+## Git Blame
+
+This repo includes a `.git-blame-ignore-revs` file that lists bulk formatting commits. To configure Git to skip those commits when running `git blame`, run:
+
+```bash
+git config blame.ignoreRevsFile .git-blame-ignore-revs
+```
+
+GitHub automatically honors this file, so blame views on github.com already skip these commits.
+
 ## Questions?
 
 Open an issue or start a discussion — happy to help!
